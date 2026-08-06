@@ -1,0 +1,364 @@
+---
+title: "Taxa de Ocupação"
+output:
+  flexdashboard::flex_dashboard:
+    theme:
+      version: 4
+      bg: "#f7f5f0"
+      fg: "#1a1a2e"
+      primary: "#1e4a8a"
+    orientation: rows
+    vertical_layout: fill
+    self_contained: false
+    lib_dir: "libs"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(crosstalk)
+library(plotly)
+library(dplyr)
+
+
+uf_labels <- c(
+  "11" = "RO", "12" = "AC", "13" = "AM", "14" = "RR", "15" = "PA", "16" = "AP",
+  "17" = "TO", "21" = "MA", "22" = "PI", "23" = "CE", "24" = "RN", "25" = "PB",
+  "26" = "PE", "27" = "AL", "28" = "SE", "29" = "BA", "31" = "MG", "32" = "ES",
+  "33" = "RJ", "35" = "SP", "41" = "PR", "42" = "SC", "43" = "RS", "50" = "MS",
+  "51" = "MT", "52" = "GO", "53" = "DF"
+)
+uf_nomes <- c(
+  "11" = "Rondônia", "12" = "Acre", "13" = "Amazonas", "14" = "Roraima",
+  "15" = "Pará", "16" = "Amapá", "17" = "Tocantins", "21" = "Maranhão",
+  "22" = "Piauí", "23" = "Ceará", "24" = "Rio Grande do Norte", "25" = "Paraíba",
+  "26" = "Pernambuco", "27" = "Alagoas", "28" = "Sergipe", "29" = "Bahia",
+  "31" = "Minas Gerais", "32" = "Espírito Santo", "33" = "Rio de Janeiro",
+  "35" = "São Paulo", "41" = "Paraná", "42" = "Santa Catarina",
+  "43" = "Rio Grande do Sul", "50" = "Mato Grosso do Sul", "51" = "Mato Grosso",
+  "52" = "Goiás", "53" = "Distrito Federal"
+)
+# "Nome completo (SIGLA)" para os seletores de regiao; o grafico/legenda usa
+# so a sigla (coluna `regiao`), combinado com o usuario em 2026-07-13.
+uf_completo <- setNames(paste0(uf_nomes, " (", uf_labels[names(uf_nomes)], ")"), uf_labels)
+
+sexo_labels_txt <- c("1" = "Homem", "2" = "Mulher")
+cores_recorte <- c("Homem" = "#1e4a8a", "Mulher" = "#c9a84c")
+cores_raca <- c("Branco" = "#1e4a8a", "Não-branco" = "#c9a84c")
+
+adicionar_regiao_completo <- function(df) {
+  df %>% mutate(regiao_completo = if_else(regiao == "Brasil", "Brasil", recode(regiao, !!!uf_completo)))
+}
+
+# ============================================================
+# Taxa de Ocupacao -- mesma estrutura acima, sufixo "_txocup"
+# (2026-07-15; duplicado de proposito, ver DOCUMENTACAO.md secao 8)
+# ============================================================
+
+caminho_dados_txocup <- function(nome) file.path("..", "dados", "taxa_ocupacao", paste0("taxa_ocupacao_", nome, ".rds"))
+carregar_txocup <- function(nome) {
+  readRDS(caminho_dados_txocup(nome)) %>%
+    mutate(periodo = paste0(ano, "T", trimestre), chave_ordem = ano * 10 + trimestre) %>%
+    arrange(chave_ordem)
+}
+
+dados_brasil_txocup <- carregar_txocup("brasil") %>% mutate(regiao = "Brasil")
+dados_uf_txocup <- carregar_txocup("uf") %>% mutate(regiao = recode(as.character(UF), !!!uf_labels))
+dados_geral_unificado_txocup <- bind_rows(
+  dados_brasil_txocup %>% select(periodo, chave_ordem, regiao, taxa, ic_inf, ic_sup),
+  dados_uf_txocup     %>% select(periodo, chave_ordem, regiao, taxa, ic_inf, ic_sup)
+) %>% adicionar_regiao_completo()
+
+dados_sexo_txocup <- carregar_txocup("sexo") %>%
+  mutate(recorte_label = recode(as.character(V2007), !!!sexo_labels_txt), regiao = "Brasil")
+dados_uf_sexo_txocup <- carregar_txocup("uf_sexo") %>%
+  mutate(regiao = recode(UF, !!!uf_labels), recorte_label = recode(as.character(V2007), !!!sexo_labels_txt))
+dados_sexo_unificado_txocup <- bind_rows(
+  dados_sexo_txocup    %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup),
+  dados_uf_sexo_txocup %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup)
+) %>% adicionar_regiao_completo()
+
+dados_raca_txocup <- carregar_txocup("raca") %>% rename(recorte_label = RACA_2CAT) %>% mutate(regiao = "Brasil")
+dados_uf_raca_txocup <- carregar_txocup("uf_raca") %>%
+  mutate(regiao = recode(UF, !!!uf_labels)) %>% rename(recorte_label = RACA_2CAT)
+dados_raca_unificado_txocup <- bind_rows(
+  dados_raca_txocup    %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup),
+  dados_uf_raca_txocup %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup)
+) %>% adicionar_regiao_completo()
+
+dados_raca_sexo_txocup <- carregar_txocup("raca_sexo") %>%
+  mutate(recorte_label = paste0(recode(as.character(V2007), !!!sexo_labels_txt), " - ", RACA_2CAT),
+         regiao = "Brasil")
+dados_uf_raca_sexo_txocup <- carregar_txocup("uf_raca_sexo") %>%
+  mutate(regiao = recode(UF, !!!uf_labels),
+         recorte_label = paste0(recode(as.character(V2007), !!!sexo_labels_txt), " - ", RACA_2CAT))
+dados_raca_sexo_unificado_txocup <- bind_rows(
+  dados_raca_sexo_txocup    %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup),
+  dados_uf_raca_sexo_txocup %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup)
+) %>% adicionar_regiao_completo()
+
+dados_idade_total_txocup  <- carregar_txocup("idade") %>% mutate(grupo = "Total", regiao = "Brasil")
+dados_idade_raca_txocup   <- carregar_txocup("raca_idade") %>% mutate(grupo = RACA_2CAT, regiao = "Brasil")
+dados_idade_genero_txocup <- carregar_txocup("sexo_idade") %>%
+  mutate(grupo = recode(as.character(V2007), !!!sexo_labels_txt), regiao = "Brasil")
+dados_uf_idade_txocup <- carregar_txocup("uf_idade") %>%
+  mutate(grupo = "Total", regiao = recode(UF, !!!uf_labels))
+
+dados_idade_lente_txocup <- bind_rows(
+  dados_idade_total_txocup  %>% select(ano, trimestre, periodo, chave_ordem, regiao, FAIXA_IDADE, taxa, ic_inf, ic_sup, grupo),
+  dados_idade_raca_txocup   %>% select(ano, trimestre, periodo, chave_ordem, regiao, FAIXA_IDADE, taxa, ic_inf, ic_sup, grupo),
+  dados_idade_genero_txocup %>% select(ano, trimestre, periodo, chave_ordem, regiao, FAIXA_IDADE, taxa, ic_inf, ic_sup, grupo),
+  dados_uf_idade_txocup     %>% select(ano, trimestre, periodo, chave_ordem, regiao, FAIXA_IDADE, taxa, ic_inf, ic_sup, grupo)
+) %>% adicionar_regiao_completo()
+
+dados_idade_grupo_txocup <- dados_idade_lente_txocup %>%
+  filter(regiao == "Brasil", grupo %in% c("Homem", "Mulher", "Branco", "Não-branco")) %>%
+  mutate(tipo_comparacao = if_else(grupo %in% c("Homem", "Mulher"), "Sexo", "Raça"))
+
+```
+
+<script>
+// O flexdashboard monta a navbar (dropdowns) via JS proprio, depois que
+// o DOM carrega -- por isso esperamos ela existir antes de mexer.
+window.addEventListener("load", function() { setTimeout(function() {
+  var brand = document.querySelector(".navbar-brand");
+  if (brand) {
+    brand.innerHTML = "";
+    brand.appendChild(document.createTextNode("Indicadores Mercado de Trabalho"));
+    var sub = document.createElement("div");
+    sub.style.fontSize = "0.65rem"; sub.style.fontWeight = "400"; sub.style.lineHeight = "1"; sub.style.marginTop = "2px";
+    var eSpan = document.createElement("span"); eSpan.style.color = "#c9a84c"; eSpan.textContent = "E";
+    sub.appendChild(eSpan); sub.appendChild(document.createTextNode("cons"));
+    brand.appendChild(sub);
+  }
+
+  var nav = document.querySelector(".navbar-nav");
+  if (!nav) return;
+  var dropdownAtual = nav.querySelector("li.dropdown");
+  var indicadores = 
+[{"nome":"Taxa de Desemprego","arq":"desemprego.html","atual":false},{"nome":"Taxa de Participação","arq":"participacao.html","atual":false},{"nome":"Nível de Ocupação","arq":"ocupacao.html","atual":false},{"nome":"Taxa de Ocupação","arq":"taxa_ocupacao.html","atual":true},{"nome":"Nível de Desocupação","arq":"nivel_desocupacao.html","atual":false},{"nome":"Taxa Combinada Desocupação e Subocupação","arq":"combinada_desocup_subocup.html","atual":false},{"nome":"Taxa Combinada Desocupação e Força de Trabalho Potencial","arq":"combinada_desocup_ftpotencial.html","atual":false},{"nome":"Taxa de Subutilização","arq":"subutilizacao.html","atual":false}]
+;
+
+  var liInicio = document.createElement("li");
+  liInicio.className = "nav-item";
+  liInicio.innerHTML = '<a class="nav-link" href="index.html#in\u00edcio">In\u00edcio</a>';
+
+  var liSobre = document.createElement("li");
+  liSobre.className = "nav-item";
+  liSobre.innerHTML = '<a class="nav-link" href="index.html#sobre-os-indicadores">Sobre os Indicadores</a>';
+
+  nav.innerHTML = "";
+  nav.appendChild(liInicio);
+  nav.appendChild(liSobre);
+  indicadores.forEach(function(ind) {
+    if (ind.atual && dropdownAtual) {
+      nav.appendChild(dropdownAtual);
+    } else {
+      var li = document.createElement("li");
+      li.className = "nav-item";
+      var a = document.createElement("a");
+      a.className = "nav-link";
+      a.href = ind.arq;
+      a.textContent = ind.nome;
+      li.appendChild(a);
+      nav.appendChild(li);
+    }
+  });
+}, 60); });
+</script>
+
+<style>
+.navbar-nav { flex-wrap: nowrap !important; }
+.navbar-nav > li { flex: 1 1 auto; min-width: 0; }
+.navbar-nav > li > a { white-space: normal !important; line-height: 1.15; font-size: 0.8rem; text-align: center; padding-top: 10px !important; padding-bottom: 10px !important; }
+</style>
+
+<script>
+function corrigirTopoSidebar() {
+  var navbar = document.querySelector(".navbar");
+  if (!navbar) return;
+  var altura = navbar.offsetHeight;
+  document.querySelectorAll(".sidebar").forEach(function(el) { el.style.top = altura + "px"; });
+}
+window.addEventListener("load", function() { corrigirTopoSidebar(); setTimeout(corrigirTopoSidebar, 300); });
+window.addEventListener("resize", corrigirTopoSidebar);
+document.addEventListener("shown.bs.tab", corrigirTopoSidebar);
+document.addEventListener("click", function() { setTimeout(corrigirTopoSidebar, 50); });
+</script>
+
+# Geral {data-navmenu="Taxa de Ocupação" #geral-txocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_geral_txocup <- SharedData$new(dados_geral_unificado_txocup, key = ~paste(regiao, periodo), group = "geral_grp_txocup")
+filter_select("regiao_geral_txocup", "Região(ões) — até 5:", sd_geral_txocup, ~regiao_completo, multiple = TRUE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var el = document.querySelector("#regiao_geral_txocup select");
+    if (el && el.selectize) {
+      el.selectize.settings.maxItems = 5;
+      el.selectize.setValue(["Brasil"]);
+    }
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Geral {#chart-geral-txocupacao}
+
+```{r}
+plot_ly(sd_geral_txocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~regiao,
+        type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Taxa de Ocupação (%)"))
+```
+
+# Sexo {data-navmenu="Taxa de Ocupação" #sexo-txocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_sexo_txocup <- SharedData$new(dados_sexo_unificado_txocup, key = ~paste(regiao, periodo), group = "sexo_grp_txocup")
+filter_select("regiao_sexo_txocup", "Região:", sd_sexo_txocup, ~regiao_completo, multiple = FALSE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var el = document.querySelector("#regiao_sexo_txocup select");
+    if (el && el.selectize) el.selectize.setValue("Brasil");
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Sexo {#chart-sexo-txocupacao}
+
+```{r}
+plot_ly(sd_sexo_txocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~recorte_label,
+        colors = cores_recorte, type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Taxa de Ocupação (%)"))
+```
+
+# Raça {data-navmenu="Taxa de Ocupação" #raca-txocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_raca_txocup <- SharedData$new(dados_raca_unificado_txocup, key = ~paste(regiao, periodo), group = "raca_grp_txocup")
+filter_select("regiao_raca_txocup", "Região:", sd_raca_txocup, ~regiao_completo, multiple = FALSE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var el = document.querySelector("#regiao_raca_txocup select");
+    if (el && el.selectize) el.selectize.setValue("Brasil");
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Raça {#chart-raca-txocupacao}
+
+```{r}
+plot_ly(sd_raca_txocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~recorte_label,
+        colors = cores_raca, type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Taxa de Ocupação (%)"))
+```
+
+# Sexo x Raça {data-navmenu="Taxa de Ocupação" #sexoraca-txocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_raca_sexo_txocup <- SharedData$new(dados_raca_sexo_unificado_txocup, key = ~paste(regiao, periodo), group = "raca_sexo_grp_txocup")
+filter_select("regiao_raca_sexo_txocup", "Região:", sd_raca_sexo_txocup, ~regiao_completo, multiple = FALSE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var el = document.querySelector("#regiao_raca_sexo_txocup select");
+    if (el && el.selectize) el.selectize.setValue("Brasil");
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Sexo x Raça {#chart-sexoraca-txocupacao}
+
+```{r}
+plot_ly(sd_raca_sexo_txocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~recorte_label,
+        type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Taxa de Ocupação (%)"))
+```
+
+# Faixa Etária {data-navmenu="Taxa de Ocupação" #idade-txocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_idade_txocup <- SharedData$new(dados_idade_lente_txocup, key = ~paste(regiao, grupo, periodo), group = "idade_grp_txocup")
+filter_select("regiao_idade_txocup", "Região:", sd_idade_txocup, ~regiao_completo, multiple = FALSE)
+filter_select("lente_idade_txocup", "Ver por:", sd_idade_txocup, ~grupo, multiple = FALSE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var elR = document.querySelector("#regiao_idade_txocup select");
+    var elG = document.querySelector("#lente_idade_txocup select");
+    if (elR && elR.selectize) elR.selectize.setValue("Brasil");
+    if (elG && elG.selectize) elG.selectize.setValue("Total");
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Faixa Etária {#chart-idade-txocupacao}
+
+```{r}
+plot_ly(sd_idade_txocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~FAIXA_IDADE,
+        type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Taxa de Ocupação (%)"))
+```
+
+# Faixa Etária → Grupo {data-navmenu="Taxa de Ocupação" #idadegrupo-txocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_idade_grupo_txocup <- SharedData$new(dados_idade_grupo_txocup, key = ~paste(grupo, FAIXA_IDADE, periodo), group = "idade_grupo_grp_txocup")
+filter_select("faixa_escolhida_txocup", "Faixa etária:", sd_idade_grupo_txocup, ~FAIXA_IDADE, multiple = FALSE)
+filter_select("comparar_por_txocup", "Comparar por:", sd_idade_grupo_txocup, ~tipo_comparacao, multiple = FALSE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var elF = document.querySelector("#faixa_escolhida_txocup select");
+    var elC = document.querySelector("#comparar_por_txocup select");
+    if (elF && elF.selectize) elF.selectize.setValue("18 a 24");
+    if (elC && elC.selectize) elC.selectize.setValue("Sexo");
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Faixa Etária → Grupo {#chart-idadegrupo-txocupacao}
+
+```{r}
+plot_ly(sd_idade_grupo_txocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~grupo,
+        type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Taxa de Ocupação (%)"))
+```
+

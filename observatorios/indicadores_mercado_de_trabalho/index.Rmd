@@ -1,0 +1,303 @@
+---
+title: "Indicadores Mercado de Trabalho"
+output:
+  flexdashboard::flex_dashboard:
+    theme:
+      version: 4
+      bg: "#f7f5f0"
+      fg: "#1a1a2e"
+      primary: "#1e4a8a"
+    orientation: rows
+    vertical_layout: fill
+    self_contained: false
+    lib_dir: "libs"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dplyr)
+library(htmltools)
+
+ultimo <- function(pasta, prefixo) {
+  readRDS(file.path("..", "dados", pasta, paste0(prefixo, "_brasil.rds"))) %>%
+    mutate(periodo = paste0(ano, "T", trimestre)) %>%
+    slice_tail(n = 1)
+}
+
+ultimo_brasil <- ultimo("desemprego", "taxa_desemprego")
+ultimo_brasil_part <- ultimo("participacao", "taxa_participacao")
+ultimo_brasil_ocup <- ultimo("ocupacao", "nivel_ocupacao")
+ultimo_brasil_txocup <- ultimo("taxa_ocupacao", "taxa_ocupacao")
+ultimo_brasil_ndesoc <- ultimo("nivel_desocupacao", "nivel_desocupacao")
+ultimo_brasil_combds <- ultimo("combinada_desocup_subocup", "combinada_desocup_subocup")
+ultimo_brasil_combft <- ultimo("combinada_desocup_ftpotencial", "combinada_desocup_ftpotencial")
+ultimo_brasil_subutil <- ultimo("subutilizacao", "subutilizacao")
+
+```
+
+<style>
+.navbar-nav { flex-wrap: nowrap !important; }
+.navbar-nav > li > a { white-space: normal !important; line-height: 1.15; font-size: 0.8rem; text-align: center; padding-top: 10px !important; padding-bottom: 10px !important; }
+</style>
+
+<script>
+// O flexdashboard monta a navbar (Inicio/Sobre) via JS proprio, depois que
+// o DOM carrega -- por isso esperamos ela existir antes de mexer.
+window.addEventListener("load", function() { setTimeout(function() {
+  var brand = document.querySelector(".navbar-brand");
+  if (!brand) return;
+  var sub = document.createElement("div");
+  sub.style.fontSize = "0.65rem";
+  sub.style.fontWeight = "400";
+  sub.style.lineHeight = "1";
+  sub.style.marginTop = "2px";
+  var eSpan = document.createElement("span");
+  eSpan.style.color = "#c9a84c";
+  eSpan.textContent = "E";
+  sub.appendChild(eSpan);
+  sub.appendChild(document.createTextNode("cons"));
+  brand.appendChild(sub);
+
+  var nav = document.querySelector(".navbar-nav");
+  if (!nav) return;
+  var liInicio = nav.querySelector('a[href="#início"]');
+  var liSobre = nav.querySelector('a[href="#sobre-os-indicadores"]');
+  liInicio = liInicio ? liInicio.closest("li") : null;
+  liSobre = liSobre ? liSobre.closest("li") : null;
+  nav.innerHTML = "";
+  if (liInicio) nav.appendChild(liInicio);
+  if (liSobre) nav.appendChild(liSobre);
+
+  var indicadores = [
+    {"nome": "Taxa de Desemprego", "arq": "desemprego.html"},
+    {"nome": "Taxa de Participação", "arq": "participacao.html"},
+    {"nome": "Nível de Ocupação", "arq": "ocupacao.html"},
+    {"nome": "Taxa de Ocupação", "arq": "taxa_ocupacao.html"},
+    {"nome": "Nível de Desocupação", "arq": "nivel_desocupacao.html"},
+    {"nome": "Taxa Combinada Desocupação e Subocupação", "arq": "combinada_desocup_subocup.html"},
+    {"nome": "Taxa Combinada Desocupação e Força de Trabalho Potencial", "arq": "combinada_desocup_ftpotencial.html"},
+    {"nome": "Taxa de Subutilização", "arq": "subutilizacao.html"}
+  ];
+  indicadores.forEach(function(ind) {
+    var li = document.createElement("li");
+    li.className = "nav-item";
+    var a = document.createElement("a");
+    a.className = "nav-link";
+    a.href = ind.arq;
+    a.textContent = ind.nome;
+    li.appendChild(a);
+    nav.appendChild(li);
+  });
+
+  // Torna os cards da pagina Inicio clicaveis. O parametro href= do
+  // valueBox() depende de um comportamento JS do flexdashboard que nao
+  // dispara nesta renderizacao (o data-href fica no placeholder que e
+  // substituido antes de qualquer script rodar), entao fazemos na mao,
+  // na mesma ordem em que os 8 cards aparecem na pagina.
+  var hrefsCards = ["desemprego.html", "participacao.html", "ocupacao.html",
+                     "taxa_ocupacao.html", "nivel_desocupacao.html",
+                     "combinada_desocup_subocup.html", "combinada_desocup_ftpotencial.html",
+                     "subutilizacao.html"];
+  document.querySelectorAll(".value-box").forEach(function(el, i) {
+    if (!hrefsCards[i]) return;
+    el.style.cursor = "pointer";
+    el.addEventListener("click", function() { window.location.href = hrefsCards[i]; });
+  });
+}, 60); });
+</script>
+
+# Início
+
+## Row
+
+### Taxa de Desemprego (Brasil, último trimestre)
+
+```{r}
+valueBox(
+  paste0(sprintf("%.1f", ultimo_brasil$taxa), "%"),
+  caption = paste("Taxa de Desemprego -", ultimo_brasil$periodo),
+  icon = "fa-briefcase",
+  color = "#1e4a8a",
+  href = "desemprego.html"
+)
+```
+
+### Taxa de Participação (Brasil, último trimestre)
+
+```{r}
+valueBox(
+  paste0(sprintf("%.1f", ultimo_brasil_part$taxa), "%"),
+  caption = paste("Taxa de Participação -", ultimo_brasil_part$periodo),
+  icon = "fa-users",
+  color = "#c9a84c",
+  href = "participacao.html"
+)
+```
+
+### Nível de Ocupação (Brasil, último trimestre)
+
+```{r}
+valueBox(
+  paste0(sprintf("%.1f", ultimo_brasil_ocup$taxa), "%"),
+  caption = paste("Nível de Ocupação -", ultimo_brasil_ocup$periodo),
+  icon = "fa-industry",
+  color = "#1a1a2e",
+  href = "ocupacao.html"
+)
+```
+
+### Taxa de Ocupação (Brasil, último trimestre)
+
+```{r}
+valueBox(
+  paste0(sprintf("%.1f", ultimo_brasil_txocup$taxa), "%"),
+  caption = paste("Taxa de Ocupação -", ultimo_brasil_txocup$periodo),
+  icon = "fa-check-circle",
+  color = "#4a7bc5",
+  href = "taxa_ocupacao.html"
+)
+```
+
+### Nível de Desocupação (Brasil, último trimestre)
+
+```{r}
+valueBox(
+  paste0(sprintf("%.1f", ultimo_brasil_ndesoc$taxa), "%"),
+  caption = paste("Nível de Desocupação -", ultimo_brasil_ndesoc$periodo),
+  icon = "fa-user-times",
+  color = "#8a9ab0",
+  href = "nivel_desocupacao.html"
+)
+```
+
+### Taxa Combinada Desocupação e Subocupação (Brasil, último trimestre)
+
+```{r}
+valueBox(
+  paste0(sprintf("%.1f", ultimo_brasil_combds$taxa), "%"),
+  caption = paste("Taxa Combinada Desoc.+Subocup. -", ultimo_brasil_combds$periodo),
+  icon = "fa-clock",
+  color = "#e8c96a",
+  href = "combinada_desocup_subocup.html"
+)
+```
+
+### Taxa Combinada Desocupação e Força de Trabalho Potencial (Brasil, último trimestre)
+
+```{r}
+valueBox(
+  paste0(sprintf("%.1f", ultimo_brasil_combft$taxa), "%"),
+  caption = paste("Taxa Combinada Desoc.+FT Potencial -", ultimo_brasil_combft$periodo),
+  icon = "fa-hourglass-half",
+  color = "#4a7bc5",
+  href = "combinada_desocup_ftpotencial.html"
+)
+```
+
+### Taxa de Subutilização (Brasil, último trimestre)
+
+```{r}
+valueBox(
+  paste0(sprintf("%.1f", ultimo_brasil_subutil$taxa), "%"),
+  caption = paste("Taxa de Subutilização -", ultimo_brasil_subutil$periodo),
+  icon = "fa-exclamation-triangle",
+  color = "#c9764a",
+  href = "subutilizacao.html"
+)
+```
+
+## Row
+
+### Sobre
+
+Painel de indicadores da PNAD Contínua, atualizado trimestralmente. Hoje disponíveis: **Taxa de Desemprego**, **Taxa de Participação**, **Nível de Ocupação**, **Taxa de Ocupação**, **Nível de Desocupação**, **Taxa Combinada Desocupação e Subocupação**, **Taxa Combinada Desocupação e Força de Trabalho Potencial** e **Taxa de Subutilização**. Use o menu no topo para navegar pelos recortes de cada indicador (Geral, Sexo, Raça, Sexo x Raça, Faixa Etária...). Veja a aba **"Sobre os Indicadores"** para entender o que cada um mede.
+
+# Sobre os Indicadores
+
+## Row {data-height=850}
+
+### Como o painel divide a população
+
+Todos os indicadores desta página usam como referência a população de **14 anos ou mais** (idade de trabalhar) e dividem essas pessoas em grupos, como no diagrama abaixo. Cada indicador é uma razão entre dois desses grupos — a tabela mais abaixo mostra qual.
+
+<div style="display:flex; flex-direction:column; align-items:center; gap:6px; margin: 1.5rem 0 2rem 0; font-size: 0.9rem;">
+<div style="background:#1a1a2e; color:#fff; padding:8px 18px; border-radius:6px; font-weight:600;">
+População em idade de trabalhar (14 anos ou mais)
+</div>
+<div style="font-size:1.3rem; color:#8a9ab0; line-height:1;">↓</div>
+<div style="display:flex; gap:40px; justify-content:center; flex-wrap:wrap;">
+<div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+<div style="background:#1e4a8a; color:#fff; padding:6px 16px; border-radius:6px; font-weight:600;">Força de Trabalho</div>
+<div style="font-size:1.2rem; color:#8a9ab0; line-height:1;">↓</div>
+<div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+<div style="background:#e8f0fb; border:1px solid #1e4a8a; padding:5px 12px; border-radius:4px;">Ocupados</div>
+<div style="background:#e8f0fb; border:1px solid #1e4a8a; padding:5px 12px; border-radius:4px;">Desocupados</div>
+</div>
+<div style="font-size:0.78rem; color:#6b7280; max-width:260px; text-align:center; margin-top:2px;">
+Dentro dos ocupados: quem trabalha poucas horas e gostaria de trabalhar mais = <b>subocupados</b>
+</div>
+</div>
+<div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+<div style="background:#c9a84c; color:#1a1a2e; padding:6px 16px; border-radius:6px; font-weight:600;">Fora da Força de Trabalho</div>
+<div style="font-size:1.2rem; color:#8a9ab0; line-height:1;">↓</div>
+<div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+<div style="background:#fbf3e0; border:1px solid #c9a84c; padding:5px 12px; border-radius:4px;">Com potencial de trabalhar</div>
+<div style="background:#fbf3e0; border:1px solid #c9a84c; padding:5px 12px; border-radius:4px;">Sem potencial</div>
+</div>
+</div>
+</div>
+</div>
+
+<div style="overflow-x:auto;">
+<table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+<thead>
+<tr style="background:#1a1a2e; color:#fff;">
+  <th style="padding:8px 12px; text-align:left;">Indicador</th>
+  <th style="padding:8px 12px; text-align:left;">O que mede</th>
+  <th style="padding:8px 12px; text-align:left;">Fórmula</th>
+</tr>
+</thead>
+<tbody>
+<tr style="background:#f7f5f0;">
+  <td style="padding:8px 12px; font-weight:600;">Taxa de Desemprego</td>
+  <td style="padding:8px 12px;">Quem está na força de trabalho e não conseguiu trabalho</td>
+  <td style="padding:8px 12px;">Desocupados ÷ Força de Trabalho</td>
+</tr>
+<tr>
+  <td style="padding:8px 12px; font-weight:600;">Taxa de Participação</td>
+  <td style="padding:8px 12px;">Quanto da população em idade de trabalhar está no mercado (ocupada ou procurando)</td>
+  <td style="padding:8px 12px;">Força de Trabalho ÷ População 14+</td>
+</tr>
+<tr style="background:#f7f5f0;">
+  <td style="padding:8px 12px; font-weight:600;">Nível de Ocupação</td>
+  <td style="padding:8px 12px;">Quanto da população em idade de trabalhar está ocupada</td>
+  <td style="padding:8px 12px;">Ocupados ÷ População 14+</td>
+</tr>
+<tr>
+  <td style="padding:8px 12px; font-weight:600;">Taxa de Ocupação</td>
+  <td style="padding:8px 12px;">Dentro da força de trabalho, quantos estão ocupados (complemento da Taxa de Desemprego)</td>
+  <td style="padding:8px 12px;">Ocupados ÷ Força de Trabalho</td>
+</tr>
+<tr style="background:#f7f5f0;">
+  <td style="padding:8px 12px; font-weight:600;">Nível de Desocupação</td>
+  <td style="padding:8px 12px;">Quanto da população em idade de trabalhar está desocupada</td>
+  <td style="padding:8px 12px;">Desocupados ÷ População 14+</td>
+</tr>
+<tr>
+  <td style="padding:8px 12px; font-weight:600;">Taxa Comb. Desoc.+Subocup.</td>
+  <td style="padding:8px 12px;">Soma quem não tem trabalho com quem trabalha poucas horas e queria trabalhar mais</td>
+  <td style="padding:8px 12px;">(Desocupados + Subocupados) ÷ Força de Trabalho</td>
+</tr>
+<tr style="background:#f7f5f0;">
+  <td style="padding:8px 12px; font-weight:600;">Taxa Comb. Desoc.+FT Potencial</td>
+  <td style="padding:8px 12px;">Soma quem não tem trabalho com quem está fora do mercado mas tem potencial de entrar</td>
+  <td style="padding:8px 12px;">(Desocupados + Potencial) ÷ (Força de Trabalho + Potencial)</td>
+</tr>
+<tr>
+  <td style="padding:8px 12px; font-weight:600;">Taxa de Subutilização</td>
+  <td style="padding:8px 12px;">O mais amplo: soma os 3 grupos de uma vez (sempre ≥ que os outros combinados)</td>
+  <td style="padding:8px 12px;">(Desocupados + Subocupados + Potencial) ÷ (Força de Trabalho + Potencial)</td>
+</tr>
+</tbody>
+</table>
+</div>

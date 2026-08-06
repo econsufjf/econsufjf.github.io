@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EconsDados — Bases de Dados · Econs UFJF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:       #0f1f3d;
+    --navy-mid:   #1a3260;
+    --blue:       #1e4a8a;
+    --blue-mid:   #2a5fa8;
+    --blue-light: #4a7bc5;
+    --blue-logo:  #1e4a8a;
+    --gold:       #c9a84c;
+    --gold-light: #e8c96a;
+    --cream:      #f7f5f0;
+    --cream-dark: #ede9e0;
+    --text:       #1a1a2e;
+    --text-muted: #5a6070;
+    --white:      #ffffff;
+    --rule:       rgba(15,31,61,0.12);
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body:    'DM Sans', sans-serif;
+    --font-mono:    'DM Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 4rem; height: 64px;
+    background: rgba(15,31,61,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .nav-back {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-family: var(--font-mono); font-size: 0.72rem;
+    letter-spacing: 0.1em; color: rgba(255,255,255,0.5);
+    text-decoration: none; text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--gold-light); }
+  .nav-brand {
+    font-family: var(--font-body); font-size: 0.9rem;
+    font-weight: 500; letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.7); text-transform: uppercase;
+  }
+  .nav-brand strong { color: var(--gold-light); font-weight: 700; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 320px;
+    background: var(--navy);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 7rem 0 3.5rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(201,168,76,0.05) 79px, rgba(201,168,76,0.05) 80px),
+      repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(201,168,76,0.05) 79px, rgba(201,168,76,0.05) 80px);
+    pointer-events: none;
+  }
+  .hero .container { position: relative; z-index: 1; }
+  .eyebrow {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before { content:''; display:block; width:2rem; height:1px; background:var(--gold); }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700; color: var(--white);
+    line-height: 1.15; margin-bottom: 0.75rem;
+  }
+  .hero h1 span { color: var(--gold-light); }
+  .hero p {
+    font-size: 1rem; color: rgba(255,255,255,0.55);
+    max-width: 560px; line-height: 1.8;
+  }
+
+  /* ── CONTAINER ── */
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 2rem; }
+
+  /* ── CONTEÚDO ── */
+  .content { padding: 4rem 0 5rem; }
+
+  /* ── TEMA ── */
+  .tema-bloco { margin-bottom: 4rem; }
+  .tema-titulo {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--navy);
+  }
+  .tema-titulo h2 {
+    font-family: var(--font-display);
+    font-size: 1.4rem; font-weight: 700;
+    color: var(--navy);
+  }
+  .tema-icon { font-size: 1.4rem; }
+
+  /* ── CARDS DE BASE ── */
+  .bases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+  .base-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--blue-logo);
+    border-radius: 3px;
+    padding: 1.75rem;
+    display: flex; flex-direction: column; gap: 0.75rem;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .base-card:hover {
+    box-shadow: 0 6px 24px rgba(15,31,61,0.1);
+    transform: translateY(-2px);
+  }
+  .base-card.pendente { border-top-color: var(--gold); opacity: 0.7; }
+
+  .base-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .base-nome {
+    font-family: var(--font-display);
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--navy); line-height: 1.3;
+  }
+  .base-badge {
+    font-family: var(--font-mono); font-size: 0.62rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.2rem 0.6rem; border-radius: 2px;
+    white-space: nowrap; flex-shrink: 0;
+    align-self: flex-start; margin-top: 0.2rem;
+  }
+  .badge-ok { background: #d1fae5; color: #065f46; }
+  .badge-pendente { background: #fef3c7; color: #92400e; }
+
+  .base-fonte {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    letter-spacing: 0.06em; color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .base-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; }
+
+  .base-meta {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+  .meta-tag {
+    font-family: var(--font-mono); font-size: 0.68rem;
+    letter-spacing: 0.05em; color: var(--blue-logo);
+    background: rgba(30,74,138,0.07);
+    padding: 0.2rem 0.6rem; border-radius: 2px;
+  }
+
+  .base-links {
+    display: flex; gap: 0.75rem;
+    margin-top: auto; padding-top: 0.75rem;
+    border-top: 1px solid var(--rule);
+  }
+  .base-link {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--blue-logo); text-decoration: none;
+    display: flex; align-items: center; gap: 0.35rem;
+    transition: color 0.2s;
+  }
+  .base-link:hover { color: var(--gold); }
+  .base-link.disabled { color: var(--text-muted); pointer-events: none; }
+
+  /* ── AVISO ── */
+  .aviso {
+    background: var(--cream-dark);
+    border-top: 1px solid var(--rule);
+    padding: 2rem 0;
+  }
+  .aviso-inner {
+    display: flex; align-items: flex-start; gap: 1rem;
+    font-size: 0.85rem; color: var(--text-muted); max-width: 740px;
+  }
+  .aviso-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+  /* ── FOOTER ── */
+  footer { background: #080f1e; padding: 2rem 0; }
+  .footer-inner { display: flex; align-items: center; justify-content: space-between; }
+  .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.3); }
+  .footer-link {
+    font-size: 0.78rem; color: rgba(255,255,255,0.4);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .footer-link:hover { color: var(--gold); }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 1.5rem; }
+    .bases-grid { grid-template-columns: 1fr; }
+    .footer-inner { flex-direction: column; gap: 0.75rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="../" class="nav-back">← Econs UFJF</a>
+  <span class="nav-brand"><strong>Econs</strong>Dados</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="eyebrow">Econs · UFJF · Bases de dados</div>
+    <h1><span>Econs</span>Dados</h1>
+    <p>Bases de dados públicas organizadas, documentadas e harmonizadas pelo laboratório para uso em pesquisa em economia e políticas sociais.</p>
+  </div>
+</section>
+
+<!-- CONTEÚDO -->
+<div class="content">
+  <div class="container">
+
+    <!-- SAÚDE -->
+    <div class="tema-bloco">
+      <div class="tema-titulo">
+        <span class="tema-icon">🏥</span>
+        <h2>Saúde</h2>
+      </div>
+      <div class="bases-grid">
+
+        <div class="base-card">
+          <div class="base-header">
+            <span class="base-nome">SINASC</span>
+            <span class="base-badge badge-ok">Harmonizada</span>
+          </div>
+          <div class="base-fonte">DataSUS · Ministério da Saúde</div>
+          <p class="base-desc">Registro de todos os nascidos vivos no Brasil. Cada linha é um nascimento, com informações sobre a mãe, a gestação, o parto e o recém-nascido.</p>
+          <div class="base-meta">
+            <span class="meta-tag">1996–2024 harmonizados</span>
+            <span class="meta-tag">Anual</span>
+            <span class="meta-tag">Municípios</span>
+          </div>
+          <div class="base-links">
+            <a class="base-link" href="https://github.com/econsufjf/econsdados/blob/main/saude/sinasc/guia_de_uso_da_base.md" target="_blank">📄 Documentação</a>
+            <a class="base-link" href="https://github.com/econsufjf/econsdados/tree/main/saude/sinasc" target="_blank">⌥ Repositório</a>
+          </div>
+        </div>
+
+        <div class="base-card pendente">
+          <div class="base-header">
+            <span class="base-nome">SIHSUS</span>
+            <span class="base-badge badge-pendente">Em preparação</span>
+          </div>
+          <div class="base-fonte">DataSUS · Ministério da Saúde</div>
+          <p class="base-desc">Registro de internações hospitalares no SUS. Cobre diagnósticos, procedimentos, tempo de internação e desfechos, por município e estabelecimento.</p>
+          <div class="base-meta">
+            <span class="meta-tag">A definir</span>
+            <span class="meta-tag">Anual</span>
+            <span class="meta-tag">Municípios</span>
+          </div>
+          <div class="base-links">
+            <a class="base-link disabled">📄 Documentação em breve</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MERCADO DE TRABALHO -->
+    <div class="tema-bloco">
+      <div class="tema-titulo">
+        <span class="tema-icon">💼</span>
+        <h2>Mercado de Trabalho</h2>
+      </div>
+      <div class="bases-grid">
+
+        <div class="base-card pendente">
+          <div class="base-header">
+            <span class="base-nome">RAIS</span>
+            <span class="base-badge badge-pendente">Em preparação</span>
+          </div>
+          <div class="base-fonte">MTE · Ministério do Trabalho e Emprego</div>
+          <p class="base-desc">Relação Anual de Informações Sociais. Registro do estoque de emprego formal no Brasil — vínculos ativos em 31 de dezembro de cada ano, com informações sobre trabalhador, estabelecimento e remuneração.</p>
+          <div class="base-meta">
+            <span class="meta-tag">A definir</span>
+            <span class="meta-tag">Anual</span>
+            <span class="meta-tag">Municípios</span>
+          </div>
+          <div class="base-links">
+            <a class="base-link disabled">📄 Documentação em breve</a>
+          </div>
+        </div>
+
+        <div class="base-card pendente">
+          <div class="base-header">
+            <span class="base-nome">CAGED</span>
+            <span class="base-badge badge-pendente">Em preparação</span>
+          </div>
+          <div class="base-fonte">MTE · Ministério do Trabalho e Emprego</div>
+          <p class="base-desc">Cadastro Geral de Empregados e Desempregados. Registro mensal de admissões e desligamentos no emprego formal — permite acompanhar o fluxo de criação e destruição de postos de trabalho.</p>
+          <div class="base-meta">
+            <span class="meta-tag">A definir</span>
+            <span class="meta-tag">Mensal</span>
+            <span class="meta-tag">Municípios</span>
+          </div>
+          <div class="base-links">
+            <a class="base-link disabled">📄 Documentação em breve</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AVISO -->
+<div class="aviso">
+  <div class="container">
+    <div class="aviso-inner">
+      <span class="aviso-icon">ℹ</span>
+      <span>
+        As bases marcadas como <strong>Em preparação</strong> já estão sendo processadas pelo laboratório. A documentação técnica completa, incluindo o processo de harmonização, está disponível no <a href="https://github.com/econsufjf/econsdados" target="_blank" style="color:var(--blue-logo);">repositório EconsDados</a> no GitHub.
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <span class="footer-copy">© 2025 Econs · UFJF</span>
+      <a href="../" class="footer-link">← Voltar ao site do Econs</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

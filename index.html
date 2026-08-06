@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Econs — Laboratório de Estudos Econômicos · UFJF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0f1f3d;
+    --navy-mid: #1a3260;
+    --blue: #1e4a8a;
+    --blue-mid: #2a5fa8;
+    --blue-light: #4a7bc5;
+    --blue-logo: #1e4a8a;
+    --silver: #8a9ab0;
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --cream: #f7f5f0;
+    --cream-dark: #ede9e0;
+    --text: #1a1a2e;
+    --text-muted: #5a6070;
+    --white: #ffffff;
+    --rule: rgba(15,31,61,0.12);
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  /* ── LOGO SVG ── */
+  .econs-logo {
+    display: flex; align-items: center; gap: 0.6rem;
+    text-decoration: none;
+  }
+  .econs-logo svg { flex-shrink: 0; }
+  .logo-wordmark {
+    display: flex; flex-direction: column; line-height: 1;
+  }
+  .logo-econs {
+    font-family: var(--font-body);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--white);
+  }
+  .logo-sub {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-top: 0.15rem;
+  }
+  .logo-econs-dark { color: var(--blue-logo); }
+  .logo-sub-dark { color: var(--text-muted); }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 4rem;
+    height: 64px;
+    background: rgba(15,31,61,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .nav-brand {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+  .nav-brand span { color: var(--gold); }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold-light); }
+
+  /* ── SUBMENU ── */
+  .nav-dropdown { position: relative; }
+  .nav-dropdown > a::after {
+    content: ' ▾';
+    font-size: 0.6rem;
+    opacity: 0.6;
+  }
+  .nav-submenu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15,31,61,0.98);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 4px;
+    min-width: 240px;
+    padding: 0.5rem 0;
+    list-style: none;
+    z-index: 200;
+  }
+  .nav-submenu li a {
+    display: block;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.65);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .nav-submenu li a:hover { color: var(--gold-light); background: rgba(255,255,255,0.04); }
+  .nav-dropdown:hover .nav-submenu { display: block; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    background: var(--navy);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg-pattern {
+    position: absolute; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(201,168,76,0.06) 79px, rgba(201,168,76,0.06) 80px),
+      repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(201,168,76,0.06) 79px, rgba(201,168,76,0.06) 80px);
+    pointer-events: none;
+  }
+  .hero-content {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 8rem 4rem 4rem 6rem;
+    position: relative; z-index: 1;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block; width: 2rem; height: 1px;
+    background: var(--gold);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 5vw, 4.5rem);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.08;
+    margin-bottom: 1.5rem;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+  .hero-sub {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.6);
+    max-width: 400px;
+    margin-bottom: 2.5rem;
+    line-height: 1.8;
+  }
+  .hero-cta {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.22s;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-gold {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold-light); }
+
+  .hero-visual {
+    display: flex; align-items: center; justify-content: center;
+    padding: 8rem 4rem 4rem;
+    position: relative; z-index: 1;
+  }
+  .hero-stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 4px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 380px;
+  }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1;
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-top: 0.4rem;
+    display: block;
+  }
+  .stat-divider {
+    border: none;
+    border-top: 1px solid rgba(201,168,76,0.15);
+    margin: 1.5rem 0;
+  }
+  .stat-institution {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── SECTIONS SHARED ── */
+  section { padding: 5rem 0; }
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 2rem; }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue-logo);
+    margin-bottom: 0.75rem;
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+  .section-intro {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin-bottom: 3rem;
+  }
+
+  /* ── SOBRE ── */
+  #sobre { background: var(--cream); }
+  .sobre-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+  }
+  .sobre-text p { color: var(--text-muted); margin-bottom: 1.2rem; line-height: 1.8; }
+  .sobre-pillars {
+    display: flex; flex-direction: column; gap: 1.25rem;
+  }
+  .pillar {
+    display: flex; gap: 1.25rem; align-items: flex-start;
+    padding: 1.5rem;
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--blue-logo);
+    border-radius: 2px;
+  }
+  .pillar-icon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .pillar-title {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--navy);
+    margin-bottom: 0.25rem;
+  }
+  .pillar-desc { font-size: 0.88rem; color: var(--text-muted); }
+
+  /* ── PESQUISA ── */
+  #pesquisa { background: var(--navy); }
+  #pesquisa .section-label { color: var(--gold); }
+  #pesquisa h2 { color: var(--white); }
+  #pesquisa .section-intro { color: rgba(255,255,255,0.55); }
+  .pesquisa-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .project-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 4px;
+    padding: 2rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .project-card:hover {
+    border-color: rgba(201,168,76,0.5);
+    transform: translateY(-3px);
+  }
+  .project-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  .project-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--white);
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+  }
+  .project-card p { font-size: 0.88rem; color: rgba(255,255,255,0.5); line-height: 1.7; }
+  .project-status {
+    display: flex; align-items: center; gap: 0.4rem;
+    margin-top: 1.25rem;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.35);
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+  .dot.paused { background: var(--gold); }
+
+  /* ── PUBLICAÇÕES ── */
+  #publicacoes { background: var(--cream-dark); }
+  .pub-list { display: flex; flex-direction: column; gap: 0; }
+  .pub-item {
+    display: grid;
+    grid-template-columns: 3rem 1fr auto;
+    gap: 1.5rem;
+    align-items: start;
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pub-year {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--gold);
+    padding-top: 0.2rem;
+    font-weight: 400;
+  }
+  .pub-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--navy);
+    font-weight: 400;
+    margin-bottom: 0.3rem;
+    line-height: 1.4;
+  }
+  .pub-authors { font-size: 0.82rem; color: var(--text-muted); }
+  .pub-journal {
+    font-size: 0.8rem;
+    color: var(--blue-logo);
+    font-style: italic;
+    margin-top: 0.2rem;
+  }
+  .pub-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.65rem;
+    border-radius: 2px;
+    white-space: nowrap;
+    align-self: start;
+    margin-top: 0.25rem;
+  }
+  .pub-badge.artigo { background: #dbeafe; color: var(--blue-logo); }
+  .pub-badge.working { background: #fef3c7; color: #92400e; }
+  .pub-badge.livro { background: #d1fae5; color: #065f46; }
+
+  /* ── MEMBROS ── */
+  #membros { background: var(--white); }
+  .membros-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+  .membro-card {
+    text-align: center;
+  }
+  .membro-avatar {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--gold-light);
+    font-weight: 700;
+    border: 2px solid var(--blue-mid);
+  }
+  .membro-nome {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--navy);
+    margin-bottom: 0.2rem;
+  }
+  .membro-role {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+  .membro-area {
+    font-size: 0.72rem;
+    color: var(--blue-logo);
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+  }
+  .membros-category {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.75rem;
+    margin-bottom: 2rem;
+    margin-top: 3rem;
+  }
+  .membros-category:first-of-type { margin-top: 0; }
+
+  /* ── NOTÍCIAS ── */
+  #noticias { background: var(--cream); }
+  .noticias-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .noticia-card {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .noticia-card:hover { box-shadow: 0 8px 32px rgba(15,31,61,0.1); }
+  .noticia-img {
+    background: var(--navy);
+    height: 180px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-size: 3rem;
+    color: var(--gold);
+  }
+  .noticia-img.small { height: 120px; font-size: 2rem; }
+  .noticia-body { padding: 1.5rem; }
+  .noticia-date {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+  }
+  .noticia-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--navy);
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+  .noticia-card.small h3 { font-size: 0.9rem; }
+  .noticia-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; }
+
+  /* ── OPORTUNIDADES ── */
+  #oportunidades { background: var(--navy); }
+  #oportunidades .section-label { color: var(--gold); }
+  #oportunidades h2 { color: var(--white); }
+  #oportunidades .section-intro { color: rgba(255,255,255,0.55); }
+  .oport-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .oport-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 2rem;
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+  .oport-tipo {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .oport-card h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--white);
+    line-height: 1.4;
+  }
+  .oport-card p { font-size: 0.85rem; color: rgba(255,255,255,0.5); line-height: 1.7; }
+  .oport-prazo {
+    margin-top: auto;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.35);
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  /* ── CONTATO ── */
+  #contato { background: var(--cream-dark); }
+  .contato-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: start;
+  }
+  .contato-info { display: flex; flex-direction: column; gap: 1.5rem; }
+  .contato-item { display: flex; gap: 1rem; align-items: flex-start; }
+  .contato-icon {
+    width: 40px; height: 40px;
+    background: var(--navy);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .contato-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+    font-family: var(--font-mono);
+  }
+  .contato-value { font-size: 0.95rem; color: var(--navy); }
+  .contato-form { display: flex; flex-direction: column; gap: 1rem; }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  label { font-size: 0.8rem; font-weight: 500; color: var(--navy); letter-spacing: 0.03em; }
+  input, textarea, select {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 0.7rem 1rem;
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    color: var(--text);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  input:focus, textarea:focus { border-color: var(--blue-logo); }
+  textarea { min-height: 120px; resize: vertical; }
+  .btn-submit {
+    background: var(--navy);
+    color: var(--white);
+    padding: 0.85rem 2rem;
+    border: none;
+    border-radius: 2px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    align-self: flex-start;
+  }
+  .btn-submit:hover { background: var(--blue); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #080f1e;
+    padding: 3rem 0;
+  }
+  .footer-inner {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-brand {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--white);
+  }
+  .footer-brand span { color: var(--gold); }
+  .footer-copy {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.3);
+  }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--gold); }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 0 1.5rem; }
+    .nav-links { display: none; }
+    #hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-content { padding: 7rem 1.5rem 2rem; }
+    .hero-visual { padding: 2rem 1.5rem 4rem; }
+    .sobre-grid, .contato-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .pesquisa-grid, .oport-grid { grid-template-columns: 1fr; }
+    .membros-grid { grid-template-columns: repeat(2, 1fr); }
+    .noticias-grid { grid-template-columns: 1fr; }
+    .footer-inner { flex-direction: column; gap: 1rem; text-align: center; }
+    .footer-links { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="econs-logo">
+    <!-- Econs symbol: two interlocked squares, flat version in brand colors -->
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Back square: silver/white -->
+      <rect x="13" y="11" width="16" height="16" rx="1" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3"/>
+      <!-- Front square: gold (accent) -->
+      <rect x="7" y="9" width="16" height="16" rx="1" fill="none" stroke="#c9a84c" stroke-width="3"/>
+      <!-- Small inner square: white -->
+      <rect x="20" y="18" width="7" height="7" rx="0.5" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+    </svg>
+    <span class="logo-econs"><span style="color:var(--gold-light);">E</span>CONS</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#pesquisa">Pesquisa</a></li>
+    <li><a href="#econsdados">EconsDados</a></li>
+    <li class="nav-dropdown">
+      <a href="#observatorio">Observatórios</a>
+      <ul class="nav-submenu">
+        <li><a href="observatorios/mercado_de_trabalho/index.html">Obs. do Trabalho · Zona da Mata</a></li>
+        <li><a href="observatorios/indicadores_mercado_de_trabalho/index.html">Indicadores do Mercado de Trabalho</a></li>
+      </ul>
+    </li>
+    <li><a href="#publicacoes">Publicações</a></li>
+    <li><a href="#membros">Membros</a></li>
+    <li><a href="#noticias">Notícias</a></li>
+    <li><a href="#oportunidades">Oportunidades</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-pattern"></div>
+  <div class="hero-content">
+    <div style="display:flex; align-items:center; gap:1rem; margin-bottom:2.5rem;">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="22" y="16" width="24" height="24" rx="1.5" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="4"/>
+        <rect x="10" y="12" width="24" height="24" rx="1.5" fill="none" stroke="#c9a84c" stroke-width="4"/>
+        <rect x="30" y="27" width="11" height="11" rx="1" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2.5"/>
+      </svg>
+      <div>
+        <div style="font-family:var(--font-body);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:0.2rem;">Universidade Federal de Juiz de Fora</div>
+        <div style="font-family:var(--font-body);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.6);">Faculdade de Economia</div>
+      </div>
+    </div>
+    <h1><em style="font-style:normal;color:var(--gold-light);">E</em>CONS</h1>
+    <p style="font-family:var(--font-body);font-size:1rem;font-weight:300;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-top:-0.75rem;margin-bottom:1.75rem;">Laboratório de Estudos Econômicos</p>
+    <p class="hero-sub">Gestão e análise de microdados socioeconômicos para pesquisa, políticas públicas e formação acadêmica na UFJF. <a href="#sobre" style="color:var(--gold-light);text-decoration:none;font-size:0.9rem;white-space:nowrap;">Saiba mais →</a></p>
+    <div class="hero-cta">
+      <a href="#econsdados" class="btn btn-gold">EconsDados</a>
+      <a href="#observatorio" class="btn btn-outline">Observatórios</a>
+    </div>
+  </div>
+
+  <!-- Coluna direita: credencial PNIPE -->
+  <div style="display:flex; align-items:center; justify-content:center; padding: 2rem; position:relative; z-index:1;">
+    <div style="border:1px solid rgba(201,168,76,0.25); border-radius:6px; padding:2rem 2rem; max-width:320px; width:100%;">
+      <p style="font-family:var(--font-body);font-size:0.88rem;color:rgba(255,255,255,0.75);line-height:1.7;margin-bottom:1.25rem;">
+        O Econs é um laboratório de pesquisa registrado junto à Plataforma Nacional de Infraestrutura de Pesquisa — MCTI (PNIPE).
+      </p>
+      <a href="https://pnipe.mcti.gov.br/laboratory/43813" target="_blank" rel="noopener"
+         style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.08em;color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;transition:opacity 0.2s;"
+         onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+        pnipe.mcti.gov.br ↗
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- SOBRE -->
+<section id="sobre">
+  <div class="container">
+    <div class="sobre-grid">
+      <div class="sobre-text reveal">
+        <div class="section-label">Sobre o laboratório</div>
+        <p>O Laboratório de Estudos Econômicos (ECONS) da Universidade Federal de Juiz de Fora tem como objetivo principal disponibilizar à comunidade acadêmica e à sociedade um serviço especializado de informações socioeconômicas. Sua proposta consiste na gestão e sistematização de bancos de dados econômicos, em especial os microdados — que exigem equipamentos com grande capacidade de armazenamento e processamento. A principal finalidade é ampliar e qualificar os projetos e, consequentemente, as publicações científicas desenvolvidas no âmbito da Faculdade de Economia e do Programa de Pós-Graduação em Economia.</p>
+        <p>Para alcançar este objetivo, o ECONS busca promover o acesso, o processamento e a análise de microdados socioeconômicos, atendendo pesquisadores, discentes, docentes, formuladores de políticas públicas e demais interessados em questões econômicas, tais como sociais, trabalhistas, regionais, ambientais, dentre outras, do país. O laboratório também desempenha um papel formador, contribuindo para o desenvolvimento de capital humano ao capacitar estudantes do departamento na criação de produtos baseados no princípio do livre acesso aos dados.</p>
+        <p>Entre suas principais atividades, destacam-se o treinamento e suporte na gestão de informações e dados econômicos, a manipulação e preparação de bases de dados para pesquisa, bem como a capacitação em ferramentas de análise e programação.</p>
+        <div style="margin-top: 2rem;">
+          <a href="#contato" class="btn btn-gold">Fale conosco</a>
+        </div>
+      </div>
+      <div class="sobre-pillars reveal">
+        <!-- Logo mark decorativa na seção sobre -->
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--rule);">
+          <svg width="56" height="56" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="22" y="16" width="24" height="24" rx="1.5" fill="none" stroke="#8a9ab0" stroke-width="4"/>
+            <rect x="10" y="12" width="24" height="24" rx="1.5" fill="none" stroke="#1e4a8a" stroke-width="4"/>
+            <rect x="30" y="27" width="11" height="11" rx="1" fill="none" stroke="#8a9ab0" stroke-width="2.5"/>
+          </svg>
+          <div>
+            <div style="font-family:var(--font-body);font-weight:700;font-size:1.4rem;letter-spacing:0.1em;color:var(--blue-logo);"><span style="color:var(--gold);">E</span>CONS</div>
+            <div style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;">Laboratório de Economia</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-icon">📊</div>
+          <div>
+            <div class="pillar-title">Economia Aplicada</div>
+            <div class="pillar-desc">Análise quantitativa e qualitativa de problemas econômicos concretos com metodologias de fronteira.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-icon">🏛️</div>
+          <div>
+            <div class="pillar-title">Políticas Públicas</div>
+            <div class="pillar-desc">Avaliação de programas e políticas governamentais com foco em eficácia e equidade social.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-icon">🌎</div>
+          <div>
+            <div class="pillar-title">Desenvolvimento Regional</div>
+            <div class="pillar-desc">Estudo das dinâmicas econômicas de Minas Gerais e do Brasil com perspectiva regional comparada.</div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-icon">🎓</div>
+          <div>
+            <div class="pillar-title">Formação Científica</div>
+            <div class="pillar-desc">Programa de iniciação científica e pós-graduação integrado às linhas de pesquisa do laboratório.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PESQUISA -->
+<section id="pesquisa">
+  <div class="container">
+    <div class="section-label">Projetos de pesquisa</div>
+    <h2 style="color: var(--white)">O que estamos<br>investigando</h2>
+  </div>
+</section>
+
+<!-- ECONSDADOS -->
+<section id="econsdados" style="background: var(--cream);">
+  <div class="container">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;">
+      <div class="reveal">
+        <div class="section-label">Dados abertos</div>
+        <h2>EconsDados</h2>
+        <p style="font-size:1.05rem; color:var(--text-muted); line-height:1.8; margin-bottom:1.5rem;">
+          O Econs organiza e disponibiliza bases de dados públicas para pesquisa em economia e políticas sociais — hoje reunindo fontes do DataSUS, RAIS/CAGED e outras, com documentação técnica aberta.
+        </p>
+        <a href="econsdados/index.html" class="btn btn-gold">Explorar as bases →</a>
+      </div>
+      <div class="reveal">
+        <div style="background:var(--navy); border-radius:6px; padding:2.5rem; border:1px solid rgba(201,168,76,0.2);">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem;">
+            <div style="text-align:center; padding:1.25rem; background:rgba(255,255,255,0.04); border-radius:4px; border:1px solid rgba(201,168,76,0.12);">
+              <span style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--gold-light);display:block;line-height:1;">2</span>
+              <span style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-top:0.4rem;">Fontes de dados</span>
+            </div>
+            <div style="text-align:center; padding:1.25rem; background:rgba(255,255,255,0.04); border-radius:4px; border:1px solid rgba(201,168,76,0.12);">
+              <span style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--gold-light);display:block;line-height:1;">6+</span>
+              <span style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-top:0.4rem;">Bases organizadas</span>
+            </div>
+            <div style="text-align:center; padding:1.25rem; background:rgba(255,255,255,0.04); border-radius:4px; border:1px solid rgba(201,168,76,0.12);">
+              <span style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--gold-light);display:block;line-height:1;">2</span>
+              <span style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-top:0.4rem;">Observatórios</span>
+            </div>
+            <div style="text-align:center; padding:1.25rem; background:rgba(255,255,255,0.04); border-radius:4px; border:1px solid rgba(201,168,76,0.12);">
+              <span style="font-family:var(--font-display);font-size:2.4rem;font-weight:700;color:var(--gold-light);display:block;line-height:1;">+30</span>
+              <span style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);display:block;margin-top:0.4rem;">Anos de série</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.75rem; padding-top:1.5rem; border-top:1px solid rgba(201,168,76,0.12);">
+            <div style="width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;"></div>
+            <span style="font-family:var(--font-mono);font-size:0.72rem;color:rgba(255,255,255,0.4);letter-spacing:0.05em;">Fontes: DataSUS, RAIS/CAGED — documentação técnica no GitHub</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OBSERVATÓRIOS -->
+<section id="observatorio" style="background: var(--cream);">
+  <div class="container">
+    <div class="section-label">Painéis interativos</div>
+    <h2 style="margin-bottom:2.5rem;">Observatórios</h2>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+
+      <!-- Card 1: Zona da Mata -->
+      <div class="reveal" style="background:var(--navy); border-radius:6px; padding:2.5rem; border:1px solid rgba(201,168,76,0.2); display:flex; flex-direction:column; gap:1.25rem;">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;">RAIS · CAGED</div>
+          <h3 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--white);line-height:1.3;">Observatório do Trabalho<br>da Zona da Mata</h3>
+        </div>
+        <p style="font-size:0.88rem;color:rgba(255,255,255,0.5);line-height:1.75;">Indicadores do mercado de trabalho formal para os 142 municípios da Zona da Mata Mineira — saldo de emprego, estoque, rendimentos e perfil dos trabalhadores.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <span style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.06em;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);padding:0.25rem 0.6rem;border-radius:2px;">142 municípios</span>
+          <span style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.06em;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);padding:0.25rem 0.6rem;border-radius:2px;">+20 anos de série</span>
+          <span style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.06em;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);padding:0.25rem 0.6rem;border-radius:2px;">Zona da Mata · MG</span>
+        </div>
+        <div style="margin-top:auto;padding-top:1.25rem;border-top:1px solid rgba(255,255,255,0.08);">
+          <a href="observatorios/mercado_de_trabalho/index.html" class="btn btn-gold" target="_blank" rel="noopener">Acessar →</a>
+        </div>
+      </div>
+
+      <!-- Card 2: Indicadores PNADC -->
+      <div class="reveal" style="background:var(--navy); border-radius:6px; padding:2.5rem; border:1px solid rgba(201,168,76,0.2); display:flex; flex-direction:column; gap:1.25rem;">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;">PNADC · IBGE</div>
+          <h3 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--white);line-height:1.3;">Indicadores do Mercado<br>de Trabalho</h3>
+        </div>
+        <p style="font-size:0.88rem;color:rgba(255,255,255,0.5);line-height:1.75;">Principais indicadores do mercado de trabalho brasileiro a partir da Pesquisa Nacional por Amostra de Domicílios Contínua — desemprego, informalidade, rendimentos e muito mais.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <span style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.06em;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);padding:0.25rem 0.6rem;border-radius:2px;">Brasil · UFs</span>
+          <span style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.06em;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);padding:0.25rem 0.6rem;border-radius:2px;">Trimestral</span>
+          <span style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.06em;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);padding:0.25rem 0.6rem;border-radius:2px;">Formal e informal</span>
+        </div>
+        <div style="margin-top:auto;padding-top:1.25rem;border-top:1px solid rgba(255,255,255,0.08);">
+          <a href="observatorios/indicadores_mercado_de_trabalho/index.html" class="btn btn-gold" target="_blank" rel="noopener">Acessar →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PUBLICAÇÕES -->
+<section id="publicacoes">
+  <div class="container">
+    <div class="section-label">Produção científica</div>
+    <h2>Publicações<br>recentes</h2>
+  </div>
+</section>
+
+<!-- MEMBROS -->
+<section id="membros">
+  <div class="container">
+    <div class="section-label">Equipe</div>
+    <h2>Pesquisadores<br>do laboratório</h2>
+    <p class="section-intro">Conheça os professores, pesquisadores e estudantes que integram o Econs.</p>
+
+    <div class="membros-category">Coordenação e Pesquisadores Permanentes</div>
+    <div class="membros-grid">
+      <div class="membro-card reveal">
+        <div class="membro-avatar">RF</div>
+        <div class="membro-nome">Prof. Dr. Ricardo Freguglia</div>
+        <div class="membro-role">Professor</div>
+        <div class="membro-area"></div>
+      </div>
+      <div class="membro-card reveal">
+        <div class="membro-avatar">IP</div>
+        <div class="membro-nome">Dr. Igor Procópio</div>
+        <div class="membro-role">Pesquisador</div>
+        <div class="membro-area"></div>
+      </div>
+      <div class="membro-card reveal">
+        <div class="membro-avatar">FC</div>
+        <div class="membro-nome">Profa. Dra. Flávia Chein</div>
+        <div class="membro-role">Professora</div>
+        <div class="membro-area"></div>
+      </div>
+    </div>
+
+    <div class="membros-category">Pesquisadores Associados e Pós-Graduação</div>
+    <div class="membros-grid">
+    </div>
+  </div>
+</section>
+
+<!-- NOTÍCIAS -->
+<section id="noticias">
+  <div class="container">
+    <div class="section-label">Notícias e eventos</div>
+    <h2>Últimas<br>novidades</h2>
+  </div>
+</section>
+
+<!-- OPORTUNIDADES -->
+<section id="oportunidades">
+  <div class="container">
+    <div class="section-label">Faça parte</div>
+    <h2 style="color: var(--white)">Oportunidades<br>abertas</h2>
+  </div>
+</section>
+
+<!-- CONTATO -->
+<section id="contato">
+  <div class="container">
+    <div class="section-label">Entre em contato</div>
+    <h2>Fale com<br>o laboratório</h2>
+    <div class="contato-info reveal">
+        <div class="contato-item">
+          <div class="contato-icon">📍</div>
+          <div>
+            <div class="contato-label">Endereço</div>
+            <div class="contato-value">Faculdade de Economia, UFJF<br>Rua José Lourenço Kelmer, s/n — Campus Universitário<br>Juiz de Fora — MG, 36036-900</div>
+          </div>
+        </div>
+        <div class="contato-item">
+          <div class="contato-icon">✉️</div>
+          <div>
+            <div class="contato-label">E-mail</div>
+            <div class="contato-value">lab.econs@ufjf.br</div>
+          </div>
+        </div>
+        <div class="contato-item">
+          <div class="contato-icon">📞</div>
+          <div>
+            <div class="contato-label">Telefone</div>
+            <div class="contato-value">(32) 2102-3541</div>
+          </div>
+        </div>
+      </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="#hero" class="econs-logo" style="text-decoration:none;">
+        <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="13" y="11" width="16" height="16" rx="1" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="3"/>
+          <rect x="7" y="9" width="16" height="16" rx="1" fill="none" stroke="#c9a84c" stroke-width="3"/>
+          <rect x="20" y="18" width="7" height="7" rx="0.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+        </svg>
+        <div class="logo-wordmark">
+          <span class="logo-econs" style="font-size:1.05rem;"><span style="color:var(--gold-light);">E</span>CONS</span>
+          <span class="logo-sub">Laboratório de Economia · UFJF</span>
+        </div>
+      </a>
+      <div class="footer-links">
+        <a href="https://ufjf.br" target="_blank">UFJF</a>
+        <a href="#">PPGE</a>
+        <a href="#">CNPq</a>
+        <a href="#">CAPES</a>
+      </div>
+      <div class="footer-copy">© 2025 Econs — Laboratório de Estudos Econômicos</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

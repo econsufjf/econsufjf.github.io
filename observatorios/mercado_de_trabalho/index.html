@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Observatório do Trabalho · Zona da Mata Mineira — Econs UFJF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0f1f3d;
+    --navy-mid: #1a3260;
+    --blue: #1e4a8a;
+    --blue-mid: #2a5fa8;
+    --blue-light: #4a7bc5;
+    --blue-logo: #1e4a8a;
+    --silver: #8a9ab0;
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --cream: #f7f5f0;
+    --cream-dark: #ede9e0;
+    --text: #1a1a2e;
+    --text-muted: #5a6070;
+    --white: #ffffff;
+    --rule: rgba(15,31,61,0.12);
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 4rem;
+    height: 64px;
+    background: rgba(15,31,61,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .nav-back {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--gold-light); }
+  .nav-brand {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+  }
+  .nav-brand strong { color: var(--gold-light); font-weight: 700; }
+
+  /* ── HERO ── */
+  .obs-hero {
+    min-height: 340px;
+    background: var(--navy);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 7rem 0 3.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .obs-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(201,168,76,0.05) 79px, rgba(201,168,76,0.05) 80px),
+      repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(201,168,76,0.05) 79px, rgba(201,168,76,0.05) 80px);
+    pointer-events: none;
+  }
+  .obs-hero .container { position: relative; z-index: 1; }
+  .obs-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .obs-eyebrow::before { content:''; display:block; width:2rem; height:1px; background:var(--gold); }
+  .obs-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 0.75rem;
+  }
+  .obs-hero p {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.55);
+    max-width: 560px;
+    line-height: 1.8;
+  }
+
+  /* ── CONTAINER ── */
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 2rem; }
+
+  /* ── FILTRO / BUSCA ── */
+  .obs-search-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--rule);
+    padding: 1.25rem 0;
+    position: sticky; top: 64px; z-index: 50;
+  }
+  .obs-search-bar .container {
+    display: flex; align-items: center; gap: 1rem;
+  }
+  #busca {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    color: var(--text);
+    outline: none;
+    background: var(--cream);
+    transition: border-color 0.2s;
+    max-width: 360px;
+  }
+  #busca:focus { border-color: var(--blue-logo); background: var(--white); }
+  #busca::placeholder { color: var(--text-muted); }
+  .search-hint {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+  #contagem {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── MICRORREGIÕES ── */
+  .obs-content { padding: 3rem 0 5rem; }
+  .micro-bloco {
+    margin-bottom: 3rem;
+  }
+  .micro-titulo {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .micro-titulo h2 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .micro-count {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--white);
+    background: var(--blue-logo);
+    padding: 0.15rem 0.55rem;
+    border-radius: 2px;
+  }
+  .mun-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.6rem;
+  }
+  .mun-link {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.65rem 1rem;
+    background: var(--white);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.88rem;
+    transition: all 0.15s;
+  }
+  .mun-link:hover {
+    border-color: var(--blue-logo);
+    color: var(--blue-logo);
+    background: var(--white);
+    transform: translateX(2px);
+  }
+  .mun-link.sem-dados {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .mun-arrow {
+    font-size: 0.7rem;
+    color: var(--blue-light);
+    flex-shrink: 0;
+  }
+  .mun-link.sem-dados .mun-arrow { display: none; }
+  .mun-badge-nd {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    border: 1px solid var(--rule);
+    padding: 0.1rem 0.35rem;
+    border-radius: 2px;
+  }
+
+  /* ── AVISO DADOS ── */
+  .obs-aviso {
+    background: var(--cream-dark);
+    border-top: 1px solid var(--rule);
+    padding: 2rem 0;
+  }
+  .aviso-inner {
+    display: flex; align-items: flex-start; gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    max-width: 740px;
+  }
+  .aviso-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #080f1e;
+    padding: 2rem 0;
+  }
+  .footer-inner {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.3); }
+  .footer-link {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-link:hover { color: var(--gold); }
+
+  /* ── OCULTAR BLOCOS VAZIOS NA BUSCA ── */
+  .micro-bloco.oculto { display: none; }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 1.5rem; }
+    .obs-hero { padding: 6rem 0 2.5rem; }
+    .mun-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    .footer-inner { flex-direction: column; gap: 0.75rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="../" class="nav-back">← Econs UFJF</a>
+  <span class="nav-brand">Observatório do <strong>Trabalho</strong></span>
+</nav>
+
+<!-- HERO -->
+<section class="obs-hero">
+  <div class="container">
+    <div class="obs-eyebrow">Econs · UFJF · Dados abertos</div>
+    <h1>Observatório do Trabalho<br>da Zona da Mata Mineira</h1>
+    <p>Indicadores do mercado de trabalho formal para os 142 municípios da Zona da Mata Mineira, com base nos dados da RAIS e do CAGED (MTE).</p>
+  </div>
+</section>
+
+<!-- BARRA DE BUSCA -->
+<div class="obs-search-bar">
+  <div class="container">
+    <input type="text" id="busca" placeholder="Buscar município..." autocomplete="off">
+    <span class="search-hint">digite para filtrar</span>
+    <span id="contagem">142 municípios</span>
+  </div>
+</div>
+
+<!-- CONTEÚDO -->
+<div class="obs-content">
+  <div class="container">
+
+    <!-- Microrregião de Juiz de Fora -->
+    <div class="micro-bloco" data-micro="juiz-de-fora">
+      <div class="micro-titulo">
+        <h2>Microrregião de Juiz de Fora</h2>
+        <span class="micro-count">32 municípios</span>
+      </div>
+      <div class="mun-grid">
+        <a class="mun-link" href="municipios/3106101.html">Belmiro Braga <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3106804.html">Bias Fortes <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3106903.html">Bicas <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3115904.html">Chácara <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3116209.html">Chiador <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3119609.html">Coronel Pacheco <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3121308.html">Descoberto <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3125002.html">Ewbank da Câmara <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3127388.html">Goianá <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3128501.html">Guarará <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3136702.html"><strong>Juiz de Fora</strong> <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3138609.html">Lima Duarte <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3139805.html">Mar de Espanha <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3140209.html">Maripá de Minas <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3140803.html">Matias Barbosa <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3145406.html">Olaria <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3145703.html">Oliveira Fortes <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3146602.html">Paiva <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3149408.html">Pedro Teixeira <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3149507.html">Pequeri <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3150109.html">Piau <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3155405.html">Rio Novo <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3155900.html">Rio Preto <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3156205.html">Rochedo de Minas <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3157278.html">Santa Bárbara do Monte Verde <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3159308.html">Santa Rita de Jacutinga <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3159407.html">Santa Rita de Ibitipoca <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3158607.html">Santana do Deserto <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3160702.html">Santos Dumont <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3162906.html">São João Nepomuceno <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3165602.html">Senador Cortes <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3167509.html">Simão Pereira <span class="mun-arrow">→</span></a>
+      </div>
+    </div>
+
+    <!-- Microrregião de Manhuaçu -->
+    <div class="micro-bloco" data-micro="manhuacu">
+      <div class="micro-titulo">
+        <h2>Microrregião de Manhuaçu</h2>
+        <span class="micro-count">20 municípios</span>
+      </div>
+      <div class="mun-grid">
+        <a class="mun-link" href="municipios/3100302.html">Abre Campo <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3102050.html">Alto Caparaó <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3153509.html">Alto Jequitibá <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3112109.html">Caparaó <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3112901.html">Caputira <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3116001.html">Chalé <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3123528.html">Durandé <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3137700.html">Lajinha <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3138674.html">Luisburgo <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3139409.html">Manhuaçu <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3139508.html">Manhumirim <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3140530.html">Martins Soares <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3140902.html">Matipó <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3148756.html">Pedra Bonita <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3154150.html">Reduto <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3157906.html">Santa Margarida <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3158904.html">Santana do Manhuaçu <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3162559.html">São João do Manhuaçu <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3163607.html">São José do Mantimento <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3167608.html">Simonésia <span class="mun-arrow">→</span></a>
+      </div>
+    </div>
+
+    <!-- Microrregião de Muriaé -->
+    <div class="micro-bloco" data-micro="muriae">
+      <div class="micro-titulo">
+        <h2>Microrregião de Muriaé</h2>
+        <span class="micro-count">19 municípios</span>
+      </div>
+      <div class="mun-grid">
+        <a class="mun-link" href="municipios/3103108.html">Antônio Prado de Minas <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3105509.html">Barão de Monte Alto <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3113305.html">Carangola <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3122009.html">Divino <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3124203.html">Espera Feliz <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3124906.html">Eugenópolis <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3125309.html">Faria Lemos <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3125952.html">Fervedouro <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3142106.html">Miradouro <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3142205.html">Miraí <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3143906.html">Muriaé <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3145877.html">Orizânia <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3148202.html">Patrocínio do Muriaé <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3149002.html">Pedra Dourada <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3156452.html">Rosário da Limeira <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3161403.html">São Francisco do Glória <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3164431.html">São Sebastião da Vargem Alegre <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3169208.html">Tombos <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3171402.html">Vieiras <span class="mun-arrow">→</span></a>
+      </div>
+    </div>
+
+    <!-- Microrregião de Viçosa -->
+    <div class="micro-bloco" data-micro="vicosa">
+      <div class="micro-titulo">
+        <h2>Microrregião de Viçosa</h2>
+        <span class="micro-count">19 municípios</span>
+      </div>
+      <div class="mun-grid">
+        <a class="mun-link" href="municipios/3102100.html">Alto Rio Doce <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3102506.html">Amparo do Serra <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3108701.html">Brás Pires <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3110202.html">Cajuri <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3111705.html">Canaã <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3116308.html">Cipotânea <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3116704.html">Coimbra <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3124005.html">Ervália <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3137908.html">Lamim <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3148301.html">Paula Cândido <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3148806.html">Pedra do Anta <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3150802.html">Piranga <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3152303.html">Porto Firme <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3153103.html">Presidente Bernardes <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3155207.html">Rio Espera <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3163805.html">São Miguel do Anta <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3166006.html">Senhora de Oliveira <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3168507.html">Teixeiras <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3171303.html">Viçosa <span class="mun-arrow">→</span></a>
+      </div>
+    </div>
+
+    <!-- Microrregião de Ubá -->
+    <div class="micro-bloco" data-micro="uba">
+      <div class="micro-titulo">
+        <h2>Microrregião de Ubá</h2>
+        <span class="micro-count">16 municípios</span>
+      </div>
+      <div class="mun-grid">
+        <a class="mun-link" href="municipios/3104601.html">Astolfo Dutra <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3121902.html">Divinésia <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3123304.html">Dores do Turvo <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3128808.html">Guidoval <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3129004.html">Guiricema <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3141603.html">Mercês <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3151305.html">Piraúba <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3155801.html">Rio Pomba <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3156304.html">Rodeiro <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3161502.html">São Geraldo <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3165701.html">Senador Firmino <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3167301.html">Silveirânia <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3167905.html">Tabuleiro <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3169000.html">Tocantins <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3169901.html">Ubá <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3172004.html">Visconde do Rio Branco <span class="mun-arrow">→</span></a>
+      </div>
+    </div>
+
+    <!-- Microrregião de Cataguases -->
+    <div class="micro-bloco" data-micro="cataguases">
+      <div class="micro-titulo">
+        <h2>Microrregião de Cataguases</h2>
+        <span class="micro-count">14 municípios</span>
+      </div>
+      <div class="mun-grid">
+        <a class="mun-link" href="municipios/3101508.html">Além Paraíba <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3104403.html">Argirita <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3115300.html">Cataguases <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3122900.html">Dona Eusébia <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3124609.html">Estrela Dalva <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3132602.html">Itamarati de Minas <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3138005.html">Laranjal <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3138401.html">Leopoldina <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3146701.html">Palma <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3151107.html">Pirapetinga <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3154101.html">Recreio <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3158409.html">Santana de Cataguases <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3160009.html">Santo Antônio do Aventureiro <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3172103.html">Volta Grande <span class="mun-arrow">→</span></a>
+      </div>
+    </div>
+
+    <!-- Microrregião de Ponte Nova -->
+    <div class="micro-bloco" data-micro="ponte-nova">
+      <div class="micro-titulo">
+        <h2>Microrregião de Ponte Nova</h2>
+        <span class="micro-count">17 municípios</span>
+      </div>
+      <div class="mun-grid">
+        <a class="mun-link" href="municipios/3100401.html">Acaiaca <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3103306.html">Aracitaba <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3105707.html">Barra Longa <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3122702.html">Dom Silvério <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3128204.html">Guaraciaba <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3135506.html">Jequeri <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3145851.html">Oratórios <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3150208.html">Piedade de Ponte Nova <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3152105.html">Ponte Nova <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3154002.html">Raul Soares <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3154903.html">Rio Casca <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3155009.html">Rio Doce <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3157401.html">Santa Cruz do Escalvado <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3160108.html">Santo Antônio do Grama <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3164001.html">São Pedro dos Ferros <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3166303.html">Sericita <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3170503.html">Urucânia <span class="mun-arrow">→</span></a>
+        <a class="mun-link" href="municipios/3171154.html">Vermelho Novo <span class="mun-arrow">→</span></a>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /obs-content -->
+
+<!-- AVISO -->
+<div class="obs-aviso">
+  <div class="container">
+    <div class="aviso-inner">
+      <span class="aviso-icon">ℹ</span>
+      <span>
+        Os painéis municipais são gerados a partir dos microdados da <strong>RAIS</strong> (Relação Anual de Informações Sociais) e do <strong>CAGED</strong> (Cadastro Geral de Empregados e Desempregados), ambos do Ministério do Trabalho e Emprego (MTE).
+        Municípios cujo painel ainda não foi gerado aparecem desabilitados. Para mais informações, entre em <a href="../#contato" style="color:var(--blue-logo);">contato</a> com o Econs.
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <span class="footer-copy">© 2025 Econs · UFJF — Dados: RAIS / CAGED · MTE</span>
+      <a href="../" class="footer-link">← Voltar ao site do Econs</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Busca por município ────────────────────────────────────────────────────
+  const input = document.getElementById('busca');
+  const contagem = document.getElementById('contagem');
+  const blocos = document.querySelectorAll('.micro-bloco');
+  const total = document.querySelectorAll('.mun-link:not(.sem-dados)').length;
+
+  input.addEventListener('input', function() {
+    const q = this.value.trim().toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '');
+    let visiveis = 0;
+
+    blocos.forEach(bloco => {
+      const links = bloco.querySelectorAll('.mun-link');
+      let algumVisivel = false;
+
+      links.forEach(link => {
+        const nome = link.textContent.trim().toLowerCase()
+          .normalize('NFD').replace(/[̀-ͯ]/g, '');
+        const match = !q || nome.includes(q);
+        link.style.display = match ? '' : 'none';
+        if (match && !link.classList.contains('sem-dados')) visiveis++;
+        if (match) algumVisivel = true;
+      });
+
+      bloco.classList.toggle('oculto', !algumVisivel);
+    });
+
+    contagem.textContent = q
+      ? `${visiveis} município${visiveis !== 1 ? 's' : ''} encontrado${visiveis !== 1 ? 's' : ''}`
+      : `${total} municípios`;
+  });
+</script>
+</body>
+</html>

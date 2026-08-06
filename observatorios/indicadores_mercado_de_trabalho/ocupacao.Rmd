@@ -1,0 +1,364 @@
+---
+title: "Nível de Ocupação"
+output:
+  flexdashboard::flex_dashboard:
+    theme:
+      version: 4
+      bg: "#f7f5f0"
+      fg: "#1a1a2e"
+      primary: "#1e4a8a"
+    orientation: rows
+    vertical_layout: fill
+    self_contained: false
+    lib_dir: "libs"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(crosstalk)
+library(plotly)
+library(dplyr)
+
+
+uf_labels <- c(
+  "11" = "RO", "12" = "AC", "13" = "AM", "14" = "RR", "15" = "PA", "16" = "AP",
+  "17" = "TO", "21" = "MA", "22" = "PI", "23" = "CE", "24" = "RN", "25" = "PB",
+  "26" = "PE", "27" = "AL", "28" = "SE", "29" = "BA", "31" = "MG", "32" = "ES",
+  "33" = "RJ", "35" = "SP", "41" = "PR", "42" = "SC", "43" = "RS", "50" = "MS",
+  "51" = "MT", "52" = "GO", "53" = "DF"
+)
+uf_nomes <- c(
+  "11" = "Rondônia", "12" = "Acre", "13" = "Amazonas", "14" = "Roraima",
+  "15" = "Pará", "16" = "Amapá", "17" = "Tocantins", "21" = "Maranhão",
+  "22" = "Piauí", "23" = "Ceará", "24" = "Rio Grande do Norte", "25" = "Paraíba",
+  "26" = "Pernambuco", "27" = "Alagoas", "28" = "Sergipe", "29" = "Bahia",
+  "31" = "Minas Gerais", "32" = "Espírito Santo", "33" = "Rio de Janeiro",
+  "35" = "São Paulo", "41" = "Paraná", "42" = "Santa Catarina",
+  "43" = "Rio Grande do Sul", "50" = "Mato Grosso do Sul", "51" = "Mato Grosso",
+  "52" = "Goiás", "53" = "Distrito Federal"
+)
+# "Nome completo (SIGLA)" para os seletores de regiao; o grafico/legenda usa
+# so a sigla (coluna `regiao`), combinado com o usuario em 2026-07-13.
+uf_completo <- setNames(paste0(uf_nomes, " (", uf_labels[names(uf_nomes)], ")"), uf_labels)
+
+sexo_labels_txt <- c("1" = "Homem", "2" = "Mulher")
+cores_recorte <- c("Homem" = "#1e4a8a", "Mulher" = "#c9a84c")
+cores_raca <- c("Branco" = "#1e4a8a", "Não-branco" = "#c9a84c")
+
+adicionar_regiao_completo <- function(df) {
+  df %>% mutate(regiao_completo = if_else(regiao == "Brasil", "Brasil", recode(regiao, !!!uf_completo)))
+}
+
+# ============================================================
+# Nivel de Ocupacao -- mesma estrutura acima, sufixo "_ocup"
+# (2026-07-14; duplicado de proposito, ver DOCUMENTACAO.md secao 8)
+# ============================================================
+
+caminho_dados_ocup <- function(nome) file.path("..", "dados", "ocupacao", paste0("nivel_ocupacao_", nome, ".rds"))
+carregar_ocup <- function(nome) {
+  readRDS(caminho_dados_ocup(nome)) %>%
+    mutate(periodo = paste0(ano, "T", trimestre), chave_ordem = ano * 10 + trimestre) %>%
+    arrange(chave_ordem)
+}
+
+dados_brasil_ocup <- carregar_ocup("brasil") %>% mutate(regiao = "Brasil")
+dados_uf_ocup <- carregar_ocup("uf") %>% mutate(regiao = recode(as.character(UF), !!!uf_labels))
+dados_geral_unificado_ocup <- bind_rows(
+  dados_brasil_ocup %>% select(periodo, chave_ordem, regiao, taxa, ic_inf, ic_sup),
+  dados_uf_ocup     %>% select(periodo, chave_ordem, regiao, taxa, ic_inf, ic_sup)
+) %>% adicionar_regiao_completo()
+
+dados_sexo_ocup <- carregar_ocup("sexo") %>%
+  mutate(recorte_label = recode(as.character(V2007), !!!sexo_labels_txt), regiao = "Brasil")
+dados_uf_sexo_ocup <- carregar_ocup("uf_sexo") %>%
+  mutate(regiao = recode(UF, !!!uf_labels), recorte_label = recode(as.character(V2007), !!!sexo_labels_txt))
+dados_sexo_unificado_ocup <- bind_rows(
+  dados_sexo_ocup    %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup),
+  dados_uf_sexo_ocup %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup)
+) %>% adicionar_regiao_completo()
+
+dados_raca_ocup <- carregar_ocup("raca") %>% rename(recorte_label = RACA_2CAT) %>% mutate(regiao = "Brasil")
+dados_uf_raca_ocup <- carregar_ocup("uf_raca") %>%
+  mutate(regiao = recode(UF, !!!uf_labels)) %>% rename(recorte_label = RACA_2CAT)
+dados_raca_unificado_ocup <- bind_rows(
+  dados_raca_ocup    %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup),
+  dados_uf_raca_ocup %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup)
+) %>% adicionar_regiao_completo()
+
+dados_raca_sexo_ocup <- carregar_ocup("raca_sexo") %>%
+  mutate(recorte_label = paste0(recode(as.character(V2007), !!!sexo_labels_txt), " - ", RACA_2CAT),
+         regiao = "Brasil")
+dados_uf_raca_sexo_ocup <- carregar_ocup("uf_raca_sexo") %>%
+  mutate(regiao = recode(UF, !!!uf_labels),
+         recorte_label = paste0(recode(as.character(V2007), !!!sexo_labels_txt), " - ", RACA_2CAT))
+dados_raca_sexo_unificado_ocup <- bind_rows(
+  dados_raca_sexo_ocup    %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup),
+  dados_uf_raca_sexo_ocup %>% select(periodo, chave_ordem, regiao, recorte_label, taxa, ic_inf, ic_sup)
+) %>% adicionar_regiao_completo()
+
+dados_idade_total_ocup  <- carregar_ocup("idade") %>% mutate(grupo = "Total", regiao = "Brasil")
+dados_idade_raca_ocup   <- carregar_ocup("raca_idade") %>% mutate(grupo = RACA_2CAT, regiao = "Brasil")
+dados_idade_genero_ocup <- carregar_ocup("sexo_idade") %>%
+  mutate(grupo = recode(as.character(V2007), !!!sexo_labels_txt), regiao = "Brasil")
+dados_uf_idade_ocup <- carregar_ocup("uf_idade") %>%
+  mutate(grupo = "Total", regiao = recode(UF, !!!uf_labels))
+
+dados_idade_lente_ocup <- bind_rows(
+  dados_idade_total_ocup  %>% select(ano, trimestre, periodo, chave_ordem, regiao, FAIXA_IDADE, taxa, ic_inf, ic_sup, grupo),
+  dados_idade_raca_ocup   %>% select(ano, trimestre, periodo, chave_ordem, regiao, FAIXA_IDADE, taxa, ic_inf, ic_sup, grupo),
+  dados_idade_genero_ocup %>% select(ano, trimestre, periodo, chave_ordem, regiao, FAIXA_IDADE, taxa, ic_inf, ic_sup, grupo),
+  dados_uf_idade_ocup     %>% select(ano, trimestre, periodo, chave_ordem, regiao, FAIXA_IDADE, taxa, ic_inf, ic_sup, grupo)
+) %>% adicionar_regiao_completo()
+
+dados_idade_grupo_ocup <- dados_idade_lente_ocup %>%
+  filter(regiao == "Brasil", grupo %in% c("Homem", "Mulher", "Branco", "Não-branco")) %>%
+  mutate(tipo_comparacao = if_else(grupo %in% c("Homem", "Mulher"), "Sexo", "Raça"))
+
+```
+
+<script>
+// O flexdashboard monta a navbar (dropdowns) via JS proprio, depois que
+// o DOM carrega -- por isso esperamos ela existir antes de mexer.
+window.addEventListener("load", function() { setTimeout(function() {
+  var brand = document.querySelector(".navbar-brand");
+  if (brand) {
+    brand.innerHTML = "";
+    brand.appendChild(document.createTextNode("Indicadores Mercado de Trabalho"));
+    var sub = document.createElement("div");
+    sub.style.fontSize = "0.65rem"; sub.style.fontWeight = "400"; sub.style.lineHeight = "1"; sub.style.marginTop = "2px";
+    var eSpan = document.createElement("span"); eSpan.style.color = "#c9a84c"; eSpan.textContent = "E";
+    sub.appendChild(eSpan); sub.appendChild(document.createTextNode("cons"));
+    brand.appendChild(sub);
+  }
+
+  var nav = document.querySelector(".navbar-nav");
+  if (!nav) return;
+  var dropdownAtual = nav.querySelector("li.dropdown");
+  var indicadores = 
+[{"nome":"Taxa de Desemprego","arq":"desemprego.html","atual":false},{"nome":"Taxa de Participação","arq":"participacao.html","atual":false},{"nome":"Nível de Ocupação","arq":"ocupacao.html","atual":true},{"nome":"Taxa de Ocupação","arq":"taxa_ocupacao.html","atual":false},{"nome":"Nível de Desocupação","arq":"nivel_desocupacao.html","atual":false},{"nome":"Taxa Combinada Desocupação e Subocupação","arq":"combinada_desocup_subocup.html","atual":false},{"nome":"Taxa Combinada Desocupação e Força de Trabalho Potencial","arq":"combinada_desocup_ftpotencial.html","atual":false},{"nome":"Taxa de Subutilização","arq":"subutilizacao.html","atual":false}]
+;
+
+  var liInicio = document.createElement("li");
+  liInicio.className = "nav-item";
+  liInicio.innerHTML = '<a class="nav-link" href="index.html#in\u00edcio">In\u00edcio</a>';
+
+  var liSobre = document.createElement("li");
+  liSobre.className = "nav-item";
+  liSobre.innerHTML = '<a class="nav-link" href="index.html#sobre-os-indicadores">Sobre os Indicadores</a>';
+
+  nav.innerHTML = "";
+  nav.appendChild(liInicio);
+  nav.appendChild(liSobre);
+  indicadores.forEach(function(ind) {
+    if (ind.atual && dropdownAtual) {
+      nav.appendChild(dropdownAtual);
+    } else {
+      var li = document.createElement("li");
+      li.className = "nav-item";
+      var a = document.createElement("a");
+      a.className = "nav-link";
+      a.href = ind.arq;
+      a.textContent = ind.nome;
+      li.appendChild(a);
+      nav.appendChild(li);
+    }
+  });
+}, 60); });
+</script>
+
+<style>
+.navbar-nav { flex-wrap: nowrap !important; }
+.navbar-nav > li { flex: 1 1 auto; min-width: 0; }
+.navbar-nav > li > a { white-space: normal !important; line-height: 1.15; font-size: 0.8rem; text-align: center; padding-top: 10px !important; padding-bottom: 10px !important; }
+</style>
+
+<script>
+function corrigirTopoSidebar() {
+  var navbar = document.querySelector(".navbar");
+  if (!navbar) return;
+  var altura = navbar.offsetHeight;
+  document.querySelectorAll(".sidebar").forEach(function(el) { el.style.top = altura + "px"; });
+}
+window.addEventListener("load", function() { corrigirTopoSidebar(); setTimeout(corrigirTopoSidebar, 300); });
+window.addEventListener("resize", corrigirTopoSidebar);
+document.addEventListener("shown.bs.tab", corrigirTopoSidebar);
+document.addEventListener("click", function() { setTimeout(corrigirTopoSidebar, 50); });
+</script>
+
+# Geral {data-navmenu="Nível de Ocupação" #geral-ocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_geral_ocup <- SharedData$new(dados_geral_unificado_ocup, key = ~paste(regiao, periodo), group = "geral_grp_ocup")
+filter_select("regiao_geral_ocup", "Região(ões) — até 5:", sd_geral_ocup, ~regiao_completo, multiple = TRUE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var el = document.querySelector("#regiao_geral_ocup select");
+    if (el && el.selectize) {
+      el.selectize.settings.maxItems = 5;
+      el.selectize.setValue(["Brasil"]);
+    }
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Geral {#chart-geral-ocupacao}
+
+```{r}
+plot_ly(sd_geral_ocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~regiao,
+        type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Nível de Ocupação (%)"))
+```
+
+# Sexo {data-navmenu="Nível de Ocupação" #sexo-ocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_sexo_ocup <- SharedData$new(dados_sexo_unificado_ocup, key = ~paste(regiao, periodo), group = "sexo_grp_ocup")
+filter_select("regiao_sexo_ocup", "Região:", sd_sexo_ocup, ~regiao_completo, multiple = FALSE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var el = document.querySelector("#regiao_sexo_ocup select");
+    if (el && el.selectize) el.selectize.setValue("Brasil");
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Sexo {#chart-sexo-ocupacao}
+
+```{r}
+plot_ly(sd_sexo_ocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~recorte_label,
+        colors = cores_recorte, type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Nível de Ocupação (%)"))
+```
+
+# Raça {data-navmenu="Nível de Ocupação" #raca-ocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_raca_ocup <- SharedData$new(dados_raca_unificado_ocup, key = ~paste(regiao, periodo), group = "raca_grp_ocup")
+filter_select("regiao_raca_ocup", "Região:", sd_raca_ocup, ~regiao_completo, multiple = FALSE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var el = document.querySelector("#regiao_raca_ocup select");
+    if (el && el.selectize) el.selectize.setValue("Brasil");
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Raça {#chart-raca-ocupacao}
+
+```{r}
+plot_ly(sd_raca_ocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~recorte_label,
+        colors = cores_raca, type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Nível de Ocupação (%)"))
+```
+
+# Sexo x Raça {data-navmenu="Nível de Ocupação" #sexoraca-ocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_raca_sexo_ocup <- SharedData$new(dados_raca_sexo_unificado_ocup, key = ~paste(regiao, periodo), group = "raca_sexo_grp_ocup")
+filter_select("regiao_raca_sexo_ocup", "Região:", sd_raca_sexo_ocup, ~regiao_completo, multiple = FALSE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var el = document.querySelector("#regiao_raca_sexo_ocup select");
+    if (el && el.selectize) el.selectize.setValue("Brasil");
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Sexo x Raça {#chart-sexoraca-ocupacao}
+
+```{r}
+plot_ly(sd_raca_sexo_ocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~recorte_label,
+        type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Nível de Ocupação (%)"))
+```
+
+# Faixa Etária {data-navmenu="Nível de Ocupação" #idade-ocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_idade_ocup <- SharedData$new(dados_idade_lente_ocup, key = ~paste(regiao, grupo, periodo), group = "idade_grp_ocup")
+filter_select("regiao_idade_ocup", "Região:", sd_idade_ocup, ~regiao_completo, multiple = FALSE)
+filter_select("lente_idade_ocup", "Ver por:", sd_idade_ocup, ~grupo, multiple = FALSE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var elR = document.querySelector("#regiao_idade_ocup select");
+    var elG = document.querySelector("#lente_idade_ocup select");
+    if (elR && elR.selectize) elR.selectize.setValue("Brasil");
+    if (elG && elG.selectize) elG.selectize.setValue("Total");
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Faixa Etária {#chart-idade-ocupacao}
+
+```{r}
+plot_ly(sd_idade_ocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~FAIXA_IDADE,
+        type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Nível de Ocupação (%)"))
+```
+
+# Faixa Etária → Grupo {data-navmenu="Nível de Ocupação" #idadegrupo-ocupacao}
+
+## Coluna {.sidebar data-width=280}
+
+```{r}
+sd_idade_grupo_ocup <- SharedData$new(dados_idade_grupo_ocup, key = ~paste(grupo, FAIXA_IDADE, periodo), group = "idade_grupo_grp_ocup")
+filter_select("faixa_escolhida_ocup", "Faixa etária:", sd_idade_grupo_ocup, ~FAIXA_IDADE, multiple = FALSE)
+filter_select("comparar_por_ocup", "Comparar por:", sd_idade_grupo_ocup, ~tipo_comparacao, multiple = FALSE)
+```
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  setTimeout(function() {
+    var elF = document.querySelector("#faixa_escolhida_ocup select");
+    var elC = document.querySelector("#comparar_por_ocup select");
+    if (elF && elF.selectize) elF.selectize.setValue("18 a 24");
+    if (elC && elC.selectize) elC.selectize.setValue("Sexo");
+  }, 400);
+});
+</script>
+
+## Coluna
+
+### Faixa Etária → Grupo {#chart-idadegrupo-ocupacao}
+
+```{r}
+plot_ly(sd_idade_grupo_ocup, x = ~reorder(periodo, chave_ordem), y = ~taxa, color = ~grupo,
+        type = "scatter", mode = "lines+markers") %>%
+  layout(xaxis = list(title = "Trimestre"), yaxis = list(title = "Nível de Ocupação (%)"))
+```
+
