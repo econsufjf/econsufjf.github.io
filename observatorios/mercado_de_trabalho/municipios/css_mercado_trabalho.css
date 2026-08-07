@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap');
+
+/* ── VARIÁVEIS ── */
+:root {
+  --navy:       #0f1f3d;
+  --navy-mid:   #1a3260;
+  --blue:       #1e4a8a;
+  --blue-mid:   #2a5fa8;
+  --gold:       #c9a84c;
+  --gold-light: #e8c96a;
+  --cream:      #f7f5f0;
+  --cream-dark: #ede9e0;
+  --text:       #1a1a2e;
+  --text-muted: #5a6070;
+  --white:      #ffffff;
+  --rule:       rgba(15,31,61,0.12);
+}
+
+/* ── TIPOGRAFIA GERAL ── */
+body {
+  font-family: 'DM Sans', Helvetica, Arial, sans-serif;
+  font-size: 11pt;
+  background-color: var(--cream);
+  color: var(--text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'DM Sans', Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  color: var(--navy);
+}
+
+/* ── NAVBAR PRINCIPAL ── */
+.navbar {
+  background-color: var(--navy) !important;
+  border-bottom: 2px solid var(--gold);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.navbar-brand {
+  font-size: 13pt;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--white) !important;
+}
+
+.navbar-brand::before {
+  content: 'ECONS · ';
+  color: var(--gold-light);
+  font-size: 10pt;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+
+/* ── ABAS DA NAVBAR ── */
+.navbar-nav > li > a {
+  font-size: 9pt;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7) !important;
+  transition: color 0.2s;
+}
+
+.navbar-nav > li > a:hover,
+.navbar-nav > li.active > a {
+  color: var(--gold-light) !important;
+  background-color: transparent !important;
+}
+
+/* ── ABAS SECUNDÁRIAS (sub-tabs) ── */
+.nav-tabs {
+  border-bottom: 2px solid var(--rule);
+  background: var(--white);
+}
+
+.nav-tabs > li > a {
+  font-size: 9pt;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: 8px 16px;
+  font-family: 'DM Mono', monospace;
+}
+
+.nav-tabs > li > a:hover {
+  color: var(--blue);
+  background: transparent;
+  border-color: transparent;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover {
+  color: var(--navy);
+  border-bottom: 2px solid var(--gold);
+  background: transparent;
+}
+
+/* ── SIDEBAR ── */
+.section.sidebar {
+  background-color: var(--navy-mid);
+  border-right: 1px solid rgba(201,168,76,0.2);
+}
+
+.section.sidebar a {
+  color: rgba(255,255,255,0.75);
+  font-size: 9pt;
+  text-decoration: none;
+  display: block;
+  padding: 4px 0;
+  font-family: 'DM Sans', sans-serif;
+  transition: color 0.15s;
+}
+
+.section.sidebar a:hover {
+  color: var(--gold-light);
+}
+
+.section.sidebar p {
+  color: rgba(255,255,255,0.5);
+  font-size: 8.5pt;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.04em;
+}
+
+/* ── TÍTULOS DOS GRÁFICOS ── */
+.chart-title {
+  font-size: 10pt;
+  font-weight: 500;
+  color: var(--navy);
+  letter-spacing: 0.03em;
+  font-family: 'DM Sans', sans-serif;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+}
+
+/* ── VALUE BOXES ── */
+.value-box {
+  border-radius: 3px;
+  border: none;
+}
+
+.value-box .value-box-value {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+}
+
+.value-box .value-box-caption {
+  font-family: 'DM Mono', monospace;
+  font-size: 8pt;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* bg-primary → azul institucional */
+.value-box.bg-primary { background-color: var(--blue) !important; }
+/* bg-info → azul médio */
+.value-box.bg-info    { background-color: var(--blue-mid) !important; }
+/* bg-success → dourado (destaque positivo) */
+.value-box.bg-success { background-color: var(--gold) !important; color: var(--navy) !important; }
+/* bg-warning → navy */
+.value-box.bg-warning { background-color: var(--navy) !important; }
+/* bg-danger → vermelho suave */
+.value-box.bg-danger  { background-color: #c0392b !important; }
+
+/* ── TABELAS kable / DT ── */
+table {
+  font-size: 9.5pt;
+  font-family: 'DM Sans', sans-serif;
+  width: 100%;
+}
+
+table thead th {
+  background-color: var(--navy);
+  color: var(--white);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  padding: 8px 10px;
+  border: none;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: var(--cream);
+}
+
+table tbody tr:hover {
+  background-color: var(--cream-dark);
+}
+
+table tbody td {
+  padding: 6px 10px;
+  border-top: 1px solid var(--rule);
+  color: var(--text);
+}
+
+/* ── CONTAINERS / PAINÉIS ── */
+.chart-wrapper,
+.chart-stage {
+  background: var(--white);
+  border-radius: 3px;
+}
+
+/* ── SCROLLBAR (opcional, Webkit) ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--blue-mid); border-radius: 3px; }
