@@ -256,6 +256,100 @@
   }
   .footer-link:hover { color: var(--gold); }
 
+  /* ── MAPA DO SALDO ── */
+  .obs-mapa {
+    background: var(--white);
+    border-bottom: 1px solid var(--rule);
+    padding: 3rem 0;
+  }
+  .mapa-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: start;
+  }
+  .mapa-svg-wrap { position: relative; }
+  #mapa-zm { width: 100%; height: auto; display: block; }
+  #mapa-zm path {
+    stroke: var(--white);
+    stroke-width: 0.8;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  #mapa-zm path:hover, #mapa-zm path.ativo { stroke: var(--navy); stroke-width: 2; }
+  #mapa-zm path.sem-saldo { fill: #e3e0d8; }
+  .mapa-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+  .mapa-lado h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--navy);
+    line-height: 1.25;
+    margin-bottom: 1.25rem;
+  }
+  .mapa-total {
+    border-left: 3px solid var(--gold);
+    padding: 0.25rem 0 0.25rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .mapa-total .rotulo, .mapa-info .rotulo {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+  .mapa-total .valor {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+  .mapa-total .detalhe, .mapa-info .detalhe {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .mapa-info {
+    background: var(--cream);
+    border: 1px solid var(--rule);
+    padding: 1rem 1.1rem;
+    min-height: 7.2rem;
+    margin-bottom: 1.5rem;
+  }
+  .mapa-info .nome {
+    font-weight: 500;
+    color: var(--navy);
+    font-size: 1rem;
+  }
+  .mapa-info .valor {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+  }
+  .mapa-info .dica { font-size: 0.82rem; color: var(--text-muted); }
+  .mapa-legenda { display: flex; flex-direction: column; gap: 0.3rem; }
+  .mapa-legenda .titulo-leg {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+  }
+  .leg-item { display: flex; align-items: center; gap: 0.6rem; font-size: 0.8rem; color: var(--text); }
+  .leg-cor { width: 1.6rem; height: 0.8rem; border-radius: 1px; flex-shrink: 0; }
+  .mapa-fonte { font-size: 0.72rem; color: var(--text-muted); margin-top: 1rem; }
+  .pos { color: #1e4a8a; }
+  .neg { color: #a63a2e; }
+
   /* ── OCULTAR BLOCOS VAZIOS NA BUSCA ── */
   .micro-bloco.oculto { display: none; }
 
@@ -263,6 +357,7 @@
     nav { padding: 0 1.5rem; }
     .obs-hero { padding: 6rem 0 2.5rem; }
     .mun-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    .mapa-grid { grid-template-columns: 1fr; gap: 1.5rem; }
     .footer-inner { flex-direction: column; gap: 0.75rem; text-align: center; }
   }
 </style>
@@ -281,6 +376,33 @@
     <div class="obs-eyebrow">Econs · UFJF · Dados abertos</div>
     <h1>Observatório do Trabalho<br>da Zona da Mata Mineira</h1>
     <p>Indicadores do mercado de trabalho formal para os 142 municípios da Zona da Mata Mineira, com base nos dados da RAIS e do CAGED (MTE).</p>
+  </div>
+</section>
+
+<!-- MAPA DO SALDO DO CAGED (dados em mapa_zm.js, gerado por gera_mapa_inicial.R) -->
+<section class="obs-mapa" id="secao-mapa" hidden>
+  <div class="container">
+    <div class="mapa-grid">
+      <div class="mapa-svg-wrap">
+        <svg id="mapa-zm" role="img" aria-label="Mapa do saldo de empregos formais por município da Zona da Mata"></svg>
+      </div>
+      <div class="mapa-lado">
+        <div class="mapa-eyebrow">CAGED · <span id="mapa-periodo"></span></div>
+        <h2>Saldo de empregos formais no mês</h2>
+        <div class="mapa-total">
+          <div class="rotulo">Zona da Mata</div>
+          <div class="valor" id="mapa-total-saldo"></div>
+          <div class="detalhe" id="mapa-total-detalhe"></div>
+        </div>
+        <div class="mapa-info" id="mapa-info">
+          <div class="dica">Passe o mouse sobre um município para ver o saldo. Clique para abrir o painel completo.</div>
+        </div>
+        <div class="mapa-legenda" id="mapa-legenda">
+          <div class="titulo-leg">Saldo (admitidos − desligados)</div>
+        </div>
+        <div class="mapa-fonte">Fonte: Novo CAGED (MTE), com declarações fora do prazo e exclusões. Elaboração: Econs/UFJF.</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -531,7 +653,82 @@
   </div>
 </footer>
 
+<script src="mapa_zm.js"></script>
 <script>
+  // ── Mapa do saldo do CAGED ────────────────────────────────────────────────
+  (function () {
+    const M = window.MAPA_ZM;
+    if (!M) return;   // sem dados, a seção continua oculta
+
+    const fmt = new Intl.NumberFormat('pt-BR');
+    const sinal = v => (v > 0 ? '+' : '') + fmt.format(v);
+    const classes = [
+      { max: -101,     cor: '#a63a2e', rotulo: '−101 ou menos' },
+      { max: -21,      cor: '#d4806f', rotulo: '−100 a −21' },
+      { max: -1,       cor: '#f0c8bd', rotulo: '−20 a −1' },
+      { max: 0,        cor: '#ece8df', rotulo: '0' },
+      { max: 20,       cor: '#c3d4ec', rotulo: '+1 a +20' },
+      { max: 100,      cor: '#6f95c9', rotulo: '+21 a +100' },
+      { max: Infinity, cor: '#1e4a8a', rotulo: '+101 ou mais' }
+    ];
+    const corDe = v => classes.find(c => v <= c.max).cor;
+
+    document.getElementById('mapa-periodo').textContent = M.periodo;
+    const tot = M.total;
+    const totEl = document.getElementById('mapa-total-saldo');
+    totEl.textContent = sinal(tot.saldo);
+    totEl.className = 'valor ' + (tot.saldo >= 0 ? 'pos' : 'neg');
+    document.getElementById('mapa-total-detalhe').textContent =
+      fmt.format(tot.adm) + ' admitidos · ' + fmt.format(tot.des) + ' desligados';
+
+    const leg = document.getElementById('mapa-legenda');
+    classes.slice().reverse().forEach(c => {
+      const it = document.createElement('div');
+      it.className = 'leg-item';
+      it.innerHTML = '<span class="leg-cor" style="background:' + c.cor + '"></span>' + c.rotulo;
+      leg.appendChild(it);
+    });
+
+    const svg = document.getElementById('mapa-zm');
+    const NS = 'http://www.w3.org/2000/svg';
+    svg.setAttribute('viewBox', '0 0 ' + M.largura + ' ' + M.altura);
+    const info = document.getElementById('mapa-info');
+    const dicaHTML = info.innerHTML;
+
+    function mostra(m, el) {
+      svg.querySelectorAll('path.ativo').forEach(p => p.classList.remove('ativo'));
+      el.classList.add('ativo');
+      svg.appendChild(el);   // traz o contorno para frente
+      const temSaldo = m.saldo !== null && m.saldo !== undefined;
+      info.innerHTML =
+        '<div class="nome">' + m.nome + '</div>' +
+        '<div class="rotulo">Microrregião de ' + m.micro + '</div>' +
+        (temSaldo
+          ? '<div class="valor ' + (m.saldo >= 0 ? 'pos' : 'neg') + '">' + sinal(m.saldo) + '</div>' +
+            '<div class="detalhe">' + fmt.format(m.adm) + ' admitidos · ' + fmt.format(m.des) + ' desligados</div>'
+          : '<div class="detalhe">Sem movimentação registrada no mês.</div>');
+    }
+
+    M.municipios.forEach(m => {
+      const p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', m.d);
+      if (m.saldo === null || m.saldo === undefined) p.classList.add('sem-saldo');
+      else p.setAttribute('fill', corDe(m.saldo));
+      const t = document.createElementNS(NS, 'title');
+      t.textContent = m.nome + (m.saldo === null || m.saldo === undefined ? '' : ': ' + sinal(m.saldo));
+      p.appendChild(t);
+      p.addEventListener('mouseenter', () => mostra(m, p));
+      p.addEventListener('click', () => { window.location.href = 'municipios/' + m.cod + '.html'; });
+      svg.appendChild(p);
+    });
+    svg.addEventListener('mouseleave', () => {
+      svg.querySelectorAll('path.ativo').forEach(p => p.classList.remove('ativo'));
+      info.innerHTML = dicaHTML;
+    });
+
+    document.getElementById('secao-mapa').hidden = false;
+  })();
+
   // ── Busca por município ────────────────────────────────────────────────────
   const input = document.getElementById('busca');
   const contagem = document.getElementById('contagem');
